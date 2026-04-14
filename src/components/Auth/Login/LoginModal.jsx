@@ -1,18 +1,18 @@
 import { useState } from "react";
 import Modal from "../../Modal/Modal";
 import { authApi } from "../../../api/auth.api";
-import { setToken } from "../../../utils/auth";
 import styles from "./LoginModal.module.css";
+import { useAuth } from "../../../context/AuthContext";
 
 export default function LoginModal({ onClose }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const { login } = useAuth();
   const handleLogin = async () => {
     try {
       const res = await authApi.login({ email, password });
 
-      setToken(res.data.token);
+      login(res.data.token, res.data.user);
 
       console.log("Logged in:", res.data.user);
 
