@@ -1,0 +1,123 @@
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.modal_inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.modal_text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.modal_text h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: bold;
+  font-style: #141414;
+}
+
+.modal_text p {
+  margin: 0;
+  font-size: 14px;
+  color: #666666;
+  font-weight: bold;
+}
+
+.modal_input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.modal_input p {
+  margin: 0;
+  font-size: 14px;
+  color: #3d3d3d;
+  font-weight: bold;
+}
+
+.modal_input input {
+  height: 48px;
+  width: 100%;
+  padding-left: 12px;
+
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  font-size: 14px;
+  margin: 0;
+
+  box-sizing: border-box;
+}
+
+.input_container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.modal_inner button {
+  background-color: #4f46e5;
+  border: 1px solid #4f46e5;
+  height: 47px;
+  font-size: 16px;
+  line-height: 24px;
+  color: #fff;
+  border-radius: 8px;
+  width: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.modal_footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.orContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.orContainer span {
+  width: 40%;
+  height: 1px;
+  background-color: #d1d1d1;
+}
+
+.orContainer p {
+  margin: 0;
+  font-size: 14px;
+  color: #8a8a8a;
+  font-weight: 600;
+}
+
+.signUp {
+  color: #666666;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.signUp a {
+  color: #141414;
+}
