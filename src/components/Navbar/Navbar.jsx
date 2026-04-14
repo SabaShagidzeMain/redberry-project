@@ -1,9 +1,11 @@
 import { useState } from "react";
 import styles from "./Navbar.module.css";
 import LoginModal from "../Auth/Login/LoginModal";
+import RegisterModal from "../Auth/Register/RegisterModal";
 
 export default function Navbar() {
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   return (
     <nav className={styles.nav}>
@@ -31,12 +33,18 @@ export default function Navbar() {
               Login
             </button>
 
-            <button className={styles.reg_btn}>Register</button>
+            <button
+              className={styles.reg_btn}
+              onClick={() => setShowRegister(true)}
+            >
+              Register
+            </button>
           </div>
         </div>
       </div>
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showRegister && <RegisterModal onClose={() => setShowRegister(false)} />}
     </nav>
   );
 }
