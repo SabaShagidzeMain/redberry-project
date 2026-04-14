@@ -1,17 +1,19 @@
-const BASE_URL = "https://api.redclass.redberryinternship.ge/api";
+import { getToken } from "../utils/auth";
 
-const getToken = () => localStorage.getItem("token");
+const BASE_URL = "https://api.redclass.redberryinternship.ge/api";
 
 async function request(endpoint, method = "GET", body) {
   const token = getToken();
 
+  const isFormData = body instanceof FormData;
+
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     method,
     headers: {
-      "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
+      ...(!isFormData && { "Content-Type": "application/json" }),
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
   });
 
   if (!res.ok) {
@@ -19,16 +21,12 @@ async function request(endpoint, method = "GET", body) {
     throw new Error(error.message || "API Error");
   }
 
-  const data = await res.json();
-  return data;
+  return res.json();
 }
 
-// Helper methods
 export const api = {
   get: (url) => request(url, "GET"),
   post: (url, body) => request(url, "POST", body),
   patch: (url, body) => request(url, "PATCH", body),
   delete: (url) => request(url, "DELETE"),
 };
-
-console.log("API client loaded");
