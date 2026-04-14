@@ -17,9 +17,6 @@ export default function RegisterModal({ onClose }) {
     avatar: null,
   });
 
-  // -------------------------
-  // INPUT
-  // -------------------------
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
@@ -27,9 +24,6 @@ export default function RegisterModal({ onClose }) {
     }));
   };
 
-  // -------------------------
-  // FILE PICK (CLICK)
-  // -------------------------
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -44,9 +38,6 @@ export default function RegisterModal({ onClose }) {
     fileInputRef.current?.click();
   };
 
-  // -------------------------
-  // DRAG & DROP (CLEAN + WORKING)
-  // -------------------------
   const handleDragOver = (e) => {
     e.preventDefault();
   };
@@ -63,9 +54,6 @@ export default function RegisterModal({ onClose }) {
     }));
   };
 
-  // -------------------------
-  // REGISTER
-  // -------------------------
   const handleRegister = async () => {
     try {
       if (form.password !== form.password_confirmation) {
@@ -96,9 +84,6 @@ export default function RegisterModal({ onClose }) {
     }
   };
 
-  // -------------------------
-  // UI
-  // -------------------------
   return (
     <Modal onClose={onClose} className={styles.regModal}>
       <div className={styles.regText}>
@@ -106,7 +91,6 @@ export default function RegisterModal({ onClose }) {
         <p>Join and start learning today</p>
       </div>
 
-      {/* STEP INDICATOR */}
       <div className={styles.stepSpan}>
         <span
           className={
@@ -129,7 +113,6 @@ export default function RegisterModal({ onClose }) {
         <span className={step === 3 ? styles.current : styles.upcoming} />
       </div>
 
-      {/* STEP 1 */}
       {step === 1 && (
         <>
           <p className={styles.regInputText}>Email</p>
@@ -158,7 +141,6 @@ export default function RegisterModal({ onClose }) {
         </>
       )}
 
-      {/* STEP 2 */}
       {step === 2 && (
         <>
           <p className={styles.regInputText}>Password</p>
@@ -202,7 +184,6 @@ export default function RegisterModal({ onClose }) {
         </>
       )}
 
-      {/* STEP 3 */}
       {step === 3 && (
         <>
           <p className={styles.regInputText}>Username</p>
