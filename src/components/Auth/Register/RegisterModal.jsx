@@ -143,6 +143,18 @@ export default function RegisterModal({ onClose }) {
           <button onClick={() => setStep(2)} className={styles.regButton}>
             Next
           </button>
+          <div className={styles.modal_footer}>
+            <div className={styles.orContainer}>
+              <span />
+              <p>or</p>
+              <span />
+            </div>
+            <div>
+              <p className={styles.signUp}>
+                Already have an account? <a href="#">Log In</a>
+              </p>
+            </div>
+          </div>
         </>
       )}
 
@@ -175,6 +187,18 @@ export default function RegisterModal({ onClose }) {
           <button onClick={() => setStep(3)} className={styles.regButton}>
             Next
           </button>
+          <div className={styles.modal_footer}>
+            <div className={styles.orContainer}>
+              <span />
+              <p>or</p>
+              <span />
+            </div>
+            <div>
+              <p className={styles.signUp}>
+                Already have an account? <a href="#">Log In</a>
+              </p>
+            </div>
+          </div>
         </>
       )}
 
@@ -237,6 +261,18 @@ export default function RegisterModal({ onClose }) {
           <button className={styles.regButton} onClick={handleRegister}>
             Sign Up
           </button>
+          <div className={styles.modal_footer}>
+            <div className={styles.orContainer}>
+              <span />
+              <p>or</p>
+              <span />
+            </div>
+            <div>
+              <p className={styles.signUp}>
+                Already have an account? <a href="#">Log In</a>
+              </p>
+            </div>
+          </div>
         </>
       )}
     </Modal>

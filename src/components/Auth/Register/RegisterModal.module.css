@@ -103,8 +103,8 @@
 }
 
 .regUploadIcon {
-    width: 34px;
-    height: 34px;
+  width: 34px;
+  height: 34px;
 }
 
 .regUploadText {
@@ -162,4 +162,43 @@
   object-fit: cover;
   border-radius: 100px;
   border: 1px solid #ddd;
+}
+
+.modal_footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.orContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.orContainer span {
+  width: 40%;
+  height: 1px;
+  background-color: #d1d1d1;
+}
+
+.orContainer p {
+  margin: 0;
+  font-size: 14px;
+  color: #8a8a8a;
+  font-weight: 600;
+}
+
+.signUp {
+  color: #666666;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.signUp a {
+  color: #141414;
 }
