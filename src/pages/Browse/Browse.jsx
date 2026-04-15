@@ -30,6 +30,11 @@ export default function Browse() {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedInstructors, setSelectedInstructors] = useState([]);
 
+  const activeFilterCount =
+    selectedCategories.length +
+    selectedTopics.length +
+    selectedInstructors.length;
+
   const categoryIcons = {
     development: devIcon,
     design: designIcon,
@@ -276,7 +281,11 @@ export default function Browse() {
 
           <div className={styles.activeFilters}>
             <span></span>
-            <p>0 Filters Active</p>
+            <p>
+              {activeFilterCount === 0
+                ? "0 Filters Active"
+                : `${activeFilterCount} Filters Active`}
+            </p>
           </div>
         </div>
         {/* RIGHT SIDE */}
@@ -284,9 +293,13 @@ export default function Browse() {
           <div>
             <div className={styles.cardPanelTop}>
               <div className={styles.topText}>
-                <p>
-                  Showing {courses.length} out of {meta?.total || "..."}
-                </p>
+                {courses.length === 0 ? (
+                  <p>No courses found</p>
+                ) : (
+                  <p>
+                    Showing {courses.length} out of {meta?.total || "..."}
+                  </p>
+                )}
               </div>
 
               {/* SORT */}
