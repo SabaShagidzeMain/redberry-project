@@ -26,9 +26,9 @@ export default function Browse() {
   const [topics, setTopics] = useState([]);
   const [instructors, setInstructors] = useState([]);
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedTopic, setSelectedTopic] = useState(null);
-  const [selectedInstructor, setSelectedInstructor] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedInstructors, setSelectedInstructors] = useState([]);
 
   const categoryIcons = {
     development: devIcon,
@@ -50,7 +50,7 @@ export default function Browse() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // fetch everything
+  // fetch + filter
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -58,10 +58,7 @@ export default function Browse() {
 
         const [coursesRes, categoriesRes, topicsRes, instructorsRes] =
           await Promise.all([
-            coursesApi.getCourses({
-              page,
-              limit: 9,
-            }),
+            coursesApi.getCourses({ page, limit: 9 }),
             browseApi.getCategories(),
             browseApi.getTopics(),
             browseApi.getInstructors(),
@@ -70,21 +67,23 @@ export default function Browse() {
         let allCourses = coursesRes.data || [];
 
         // CATEGORY filter
-        if (selectedCategory) {
-          allCourses = allCourses.filter(
-            (c) => c.category?.id === selectedCategory,
+        if (selectedCategories.length > 0) {
+          allCourses = allCourses.filter((c) =>
+            selectedCategories.includes(c.category?.id),
           );
         }
 
         // TOPIC filter
-        if (selectedTopic) {
-          allCourses = allCourses.filter((c) => c.topic?.id === selectedTopic);
+        if (selectedTopics.length > 0) {
+          allCourses = allCourses.filter((c) =>
+            selectedTopics.includes(c.topic?.id),
+          );
         }
 
         // INSTRUCTOR filter
-        if (selectedInstructor) {
-          allCourses = allCourses.filter(
-            (c) => c.instructor?.id === selectedInstructor,
+        if (selectedInstructors.length > 0) {
+          allCourses = allCourses.filter((c) =>
+            selectedInstructors.includes(c.instructor?.id),
           );
         }
 
@@ -102,7 +101,7 @@ export default function Browse() {
     };
 
     fetchAll();
-  }, [page, selectedCategory, selectedTopic, selectedInstructor]);
+  }, [page, selectedCategories, selectedTopics, selectedInstructors]);
 
   return (
     <div className={styles.page}>
@@ -121,10 +120,10 @@ export default function Browse() {
             <h4>Filters</h4>
             <button
               onClick={() => {
-                setSelectedCategory(null);
-                setSelectedTopic(null);
-                setSelectedInstructor(null);
-                setPage(1); // optional but good UX
+                setSelectedCategories([]);
+                setSelectedTopics([]);
+                setSelectedInstructors([]);
+                setPage(1);
               }}
             >
               Clear all filters
@@ -142,11 +141,13 @@ export default function Browse() {
                 <div
                   key={cat.id}
                   className={`${styles.tag} ${
-                    selectedCategory === cat.id ? styles.activeTag : ""
+                    selectedCategories.includes(cat.id) ? styles.activeTag : ""
                   }`}
                   onClick={() =>
-                    setSelectedCategory(
-                      selectedCategory === cat.id ? null : cat.id,
+                    setSelectedCategories((prev) =>
+                      prev.includes(cat.id)
+                        ? prev.filter((id) => id !== cat.id)
+                        : [...prev, cat.id],
                     )
                   }
                 >
@@ -167,21 +168,27 @@ export default function Browse() {
             </div>
 
             <div className={styles.tagWrapper}>
-              {topics.map((topic) => (
-                <div
-                  key={topic.id}
-                  className={`${styles.tag} ${
-                    selectedTopic === topic.id ? styles.activeTag : ""
-                  }`}
-                  onClick={() =>
-                    setSelectedTopic(
-                      selectedTopic === topic.id ? null : topic.id,
-                    )
-                  }
-                >
-                  <p>{topic.name}</p>
-                </div>
-              ))}
+              {topics.map((topic) => {
+                const isActive = selectedTopics.includes(topic.id);
+
+                return (
+                  <div
+                    key={topic.id}
+                    className={`${styles.tag} ${
+                      isActive ? styles.activeTag : ""
+                    }`}
+                    onClick={() =>
+                      setSelectedTopics((prev) =>
+                        prev.includes(topic.id)
+                          ? prev.filter((id) => id !== topic.id)
+                          : [...prev, topic.id],
+                      )
+                    }
+                  >
+                    <p>{topic.name}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -192,26 +199,32 @@ export default function Browse() {
             </div>
 
             <div className={styles.instructorWrapper}>
-              {instructors.map((ins) => (
-                <div
-                  key={ins.id}
-                  className={`${styles.tag} ${
-                    selectedInstructor === ins.id ? styles.activeTag : ""
-                  }`}
-                  onClick={() =>
-                    setSelectedInstructor(
-                      selectedInstructor === ins.id ? null : ins.id,
-                    )
-                  }
-                >
-                  <img
-                    className={styles.instructor}
-                    src={ins.avatar}
-                    alt={ins.name}
-                  />
-                  <p>{ins.name}</p>
-                </div>
-              ))}
+              {instructors.map((ins) => {
+                const isActive = selectedInstructors.includes(ins.id);
+
+                return (
+                  <div
+                    key={ins.id}
+                    className={`${styles.tag} ${
+                      isActive ? styles.activeTag : ""
+                    }`}
+                    onClick={() =>
+                      setSelectedInstructors((prev) =>
+                        prev.includes(ins.id)
+                          ? prev.filter((id) => id !== ins.id)
+                          : [...prev, ins.id],
+                      )
+                    }
+                  >
+                    <img
+                      className={styles.instructor}
+                      src={ins.avatar}
+                      alt={ins.name}
+                    />
+                    <p>{ins.name}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -220,7 +233,6 @@ export default function Browse() {
             <p>0 Filters Active</p>
           </div>
         </div>
-
         {/* RIGHT SIDE */}
         <div className={styles.cardPanel}>
           <div>
