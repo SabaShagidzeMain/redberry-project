@@ -334,3 +334,8 @@ h3 {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+.activeTag {
+  border: 1px solid #4f46e5;
+  background: rgba(79, 70, 229, 0.08);
+}

@@ -26,6 +26,15 @@ export default function Browse() {
   const [topics, setTopics] = useState([]);
   const [instructors, setInstructors] = useState([]);
 
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedInstructors, setSelectedInstructors] = useState([]);
+
+  const activeFilterCount =
+    selectedCategories.length +
+    selectedTopics.length +
+    selectedInstructors.length;
+
   const categoryIcons = {
     development: devIcon,
     design: designIcon,
@@ -46,7 +55,7 @@ export default function Browse() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // fetch everything
+  // fetch + filter
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -54,18 +63,63 @@ export default function Browse() {
 
         const [coursesRes, categoriesRes, topicsRes, instructorsRes] =
           await Promise.all([
-            coursesApi.getCourses({
-              page,
-              limit: 9,
-            }),
+            coursesApi.getCourses({ page, limit: 9 }),
             browseApi.getCategories(),
             browseApi.getTopics(),
             browseApi.getInstructors(),
           ]);
 
-        // ✅ FORCE EXACTLY 9 ITEMS DISPLAYED
-        setCourses((coursesRes.data || []).slice(0, 9));
+        let allCourses = coursesRes.data || [];
 
+        // CATEGORY filter
+        if (selectedCategories.length > 0) {
+          allCourses = allCourses.filter((c) =>
+            selectedCategories.includes(c.category?.id),
+          );
+        }
+
+        // TOPIC filter
+        if (selectedTopics.length > 0) {
+          allCourses = allCourses.filter((c) =>
+            selectedTopics.includes(c.topic?.id),
+          );
+        }
+
+        // INSTRUCTOR filter
+        if (selectedInstructors.length > 0) {
+          allCourses = allCourses.filter((c) =>
+            selectedInstructors.includes(c.instructor?.id),
+          );
+        }
+
+        allCourses = [...allCourses]; // prevent mutation issues
+
+        switch (sort) {
+          case "Newest first":
+            allCourses.sort((a, b) => b.id - a.id);
+            break;
+
+          case "Price: Low to high":
+            allCourses.sort((a, b) => a.basePrice - b.basePrice);
+            break;
+
+          case "Price: High to low":
+            allCourses.sort((a, b) => b.basePrice - a.basePrice);
+            break;
+
+          case "Most popular":
+            allCourses.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+            break;
+
+          case "Title: A-Z":
+            allCourses.sort((a, b) => a.title.localeCompare(b.title));
+            break;
+
+          default:
+            break;
+        }
+
+        setCourses(allCourses.slice(0, 9));
         setMeta(coursesRes.meta || null);
 
         setCategories(categoriesRes.data || []);
@@ -79,7 +133,12 @@ export default function Browse() {
     };
 
     fetchAll();
-  }, [page]);
+  }, [page, selectedCategories, selectedTopics, selectedInstructors, sort]);
+
+  const visibleTopics =
+    selectedCategories.length > 0
+      ? topics.filter((t) => selectedCategories.includes(t.categoryId))
+      : topics;
 
   return (
     <div className={styles.page}>
@@ -96,7 +155,16 @@ export default function Browse() {
         <div className={styles.filters}>
           <div className={styles.filtersHeader}>
             <h4>Filters</h4>
-            <button>Clear all filters</button>
+            <button
+              onClick={() => {
+                setSelectedCategories([]);
+                setSelectedTopics([]);
+                setSelectedInstructors([]);
+                setPage(1);
+              }}
+            >
+              Clear all filters
+            </button>
           </div>
 
           {/* CATEGORIES */}
@@ -107,9 +175,35 @@ export default function Browse() {
 
             <div className={styles.tagWrapper}>
               {categories.map((cat) => (
-                <div key={cat.id} className={styles.tag}>
+                <div
+                  key={cat.id}
+                  className={`${styles.tag} ${
+                    selectedCategories.includes(cat.id) ? styles.activeTag : ""
+                  }`}
+                  onClick={() => {
+                    setSelectedCategories((prev) => {
+                      const next = prev.includes(cat.id)
+                        ? prev.filter((id) => id !== cat.id)
+                        : [...prev, cat.id];
+
+                      setSelectedTopics((prevTopics) =>
+                        next.length === 0
+                          ? prevTopics
+                          : prevTopics.filter((topicId) =>
+                              topics.some(
+                                (t) =>
+                                  t.id === topicId &&
+                                  next.includes(t.categoryId),
+                              ),
+                            ),
+                      );
+
+                      return next;
+                    });
+                  }}
+                >
                   <img
-                    src={categoryIcons[cat.icon] || devIcon} // ✅ FIXED ICON MAPPING
+                    src={categoryIcons[cat.icon] || devIcon}
                     alt={cat.name}
                   />
                   <p>{cat.name}</p>
@@ -125,11 +219,27 @@ export default function Browse() {
             </div>
 
             <div className={styles.tagWrapper}>
-              {topics.map((topic) => (
-                <div key={topic.id} className={styles.tag}>
-                  <p>{topic.name}</p>
-                </div>
-              ))}
+              {visibleTopics.map((topic) => {
+                const isActive = selectedTopics.includes(topic.id);
+
+                return (
+                  <div
+                    key={topic.id}
+                    className={`${styles.tag} ${
+                      isActive ? styles.activeTag : ""
+                    }`}
+                    onClick={() =>
+                      setSelectedTopics((prev) =>
+                        prev.includes(topic.id)
+                          ? prev.filter((id) => id !== topic.id)
+                          : [...prev, topic.id],
+                      )
+                    }
+                  >
+                    <p>{topic.name}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -140,33 +250,56 @@ export default function Browse() {
             </div>
 
             <div className={styles.instructorWrapper}>
-              {instructors.map((ins) => (
-                <div key={ins.id} className={styles.tag}>
-                  <img
-                    className={styles.instructor}
-                    src={ins.avatar}
-                    alt={ins.name}
-                  />
-                  <p>{ins.name}</p>
-                </div>
-              ))}
+              {instructors.map((ins) => {
+                const isActive = selectedInstructors.includes(ins.id);
+
+                return (
+                  <div
+                    key={ins.id}
+                    className={`${styles.tag} ${
+                      isActive ? styles.activeTag : ""
+                    }`}
+                    onClick={() =>
+                      setSelectedInstructors((prev) =>
+                        prev.includes(ins.id)
+                          ? prev.filter((id) => id !== ins.id)
+                          : [...prev, ins.id],
+                      )
+                    }
+                  >
+                    <img
+                      className={styles.instructor}
+                      src={ins.avatar}
+                      alt={ins.name}
+                    />
+                    <p>{ins.name}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           <div className={styles.activeFilters}>
             <span></span>
-            <p>0 Filters Active</p>
+            <p>
+              {activeFilterCount === 0
+                ? "0 Filters Active"
+                : `${activeFilterCount} Filters Active`}
+            </p>
           </div>
         </div>
-
         {/* RIGHT SIDE */}
         <div className={styles.cardPanel}>
           <div>
             <div className={styles.cardPanelTop}>
               <div className={styles.topText}>
-                <p>
-                  Showing {courses.length} out of {meta?.total || "..."}
-                </p>
+                {courses.length === 0 ? (
+                  <p>No courses found</p>
+                ) : (
+                  <p>
+                    Showing {courses.length} out of {meta?.total || "..."}
+                  </p>
+                )}
               </div>
 
               {/* SORT */}
