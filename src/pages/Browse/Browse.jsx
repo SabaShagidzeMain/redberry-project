@@ -103,6 +103,11 @@ export default function Browse() {
     fetchAll();
   }, [page, selectedCategories, selectedTopics, selectedInstructors]);
 
+  const visibleTopics =
+    selectedCategories.length > 0
+      ? topics.filter((t) => selectedCategories.includes(t.categoryId))
+      : topics;
+
   return (
     <div className={styles.page}>
       {/* BREADCRUMBS */}
@@ -143,13 +148,27 @@ export default function Browse() {
                   className={`${styles.tag} ${
                     selectedCategories.includes(cat.id) ? styles.activeTag : ""
                   }`}
-                  onClick={() =>
-                    setSelectedCategories((prev) =>
-                      prev.includes(cat.id)
+                  onClick={() => {
+                    setSelectedCategories((prev) => {
+                      const next = prev.includes(cat.id)
                         ? prev.filter((id) => id !== cat.id)
-                        : [...prev, cat.id],
-                    )
-                  }
+                        : [...prev, cat.id];
+
+                      setSelectedTopics((prevTopics) =>
+                        next.length === 0
+                          ? prevTopics
+                          : prevTopics.filter((topicId) =>
+                              topics.some(
+                                (t) =>
+                                  t.id === topicId &&
+                                  next.includes(t.categoryId),
+                              ),
+                            ),
+                      );
+
+                      return next;
+                    });
+                  }}
                 >
                   <img
                     src={categoryIcons[cat.icon] || devIcon}
@@ -168,7 +187,7 @@ export default function Browse() {
             </div>
 
             <div className={styles.tagWrapper}>
-              {topics.map((topic) => {
+              {visibleTopics.map((topic) => {
                 const isActive = selectedTopics.includes(topic.id);
 
                 return (
