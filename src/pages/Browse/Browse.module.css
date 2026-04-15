@@ -1,0 +1,18 @@
+.page {
+  margin: 70px 177px;
+}
+
+.breadcrumbs {
+  font-size: 18px;
+  color: #666666;
+  cursor: pointer;
+}
+
+.breadcrumbs span {
+  color: #736bea;
+}
+
+.wayHome {
+  color: #666666;
+  text-decoration: none;
+}

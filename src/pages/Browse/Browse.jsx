@@ -1,9 +1,15 @@
 import styles from "./Browse.module.css";
+import { Link } from "react-router-dom";
 
 export default function Browse() {
   return (
     <div className={styles.page}>
-      <div className={styles.breadcrumbs}>Home &gt; Browse</div>
+      <div className={styles.breadcrumbs}>
+        <Link to="/" className={styles.wayHome}>
+          Home
+        </Link>{" "}
+        &gt; <span>Browse</span>
+      </div>
 
       {/* TOOLBAR */}
       <div className={styles.toolbar}>
