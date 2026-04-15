@@ -26,6 +26,10 @@ export default function Browse() {
   const [topics, setTopics] = useState([]);
   const [instructors, setInstructors] = useState([]);
 
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedInstructor, setSelectedInstructor] = useState(null);
+
   const categoryIcons = {
     development: devIcon,
     design: designIcon,
@@ -63,9 +67,28 @@ export default function Browse() {
             browseApi.getInstructors(),
           ]);
 
-        // ✅ FORCE EXACTLY 9 ITEMS DISPLAYED
-        setCourses((coursesRes.data || []).slice(0, 9));
+        let allCourses = coursesRes.data || [];
 
+        // CATEGORY filter
+        if (selectedCategory) {
+          allCourses = allCourses.filter(
+            (c) => c.category?.id === selectedCategory,
+          );
+        }
+
+        // TOPIC filter
+        if (selectedTopic) {
+          allCourses = allCourses.filter((c) => c.topic?.id === selectedTopic);
+        }
+
+        // INSTRUCTOR filter
+        if (selectedInstructor) {
+          allCourses = allCourses.filter(
+            (c) => c.instructor?.id === selectedInstructor,
+          );
+        }
+
+        setCourses(allCourses.slice(0, 9));
         setMeta(coursesRes.meta || null);
 
         setCategories(categoriesRes.data || []);
@@ -79,7 +102,7 @@ export default function Browse() {
     };
 
     fetchAll();
-  }, [page]);
+  }, [page, selectedCategory, selectedTopic, selectedInstructor]);
 
   return (
     <div className={styles.page}>
@@ -96,7 +119,16 @@ export default function Browse() {
         <div className={styles.filters}>
           <div className={styles.filtersHeader}>
             <h4>Filters</h4>
-            <button>Clear all filters</button>
+            <button
+              onClick={() => {
+                setSelectedCategory(null);
+                setSelectedTopic(null);
+                setSelectedInstructor(null);
+                setPage(1); // optional but good UX
+              }}
+            >
+              Clear all filters
+            </button>
           </div>
 
           {/* CATEGORIES */}
@@ -107,9 +139,19 @@ export default function Browse() {
 
             <div className={styles.tagWrapper}>
               {categories.map((cat) => (
-                <div key={cat.id} className={styles.tag}>
+                <div
+                  key={cat.id}
+                  className={`${styles.tag} ${
+                    selectedCategory === cat.id ? styles.activeTag : ""
+                  }`}
+                  onClick={() =>
+                    setSelectedCategory(
+                      selectedCategory === cat.id ? null : cat.id,
+                    )
+                  }
+                >
                   <img
-                    src={categoryIcons[cat.icon] || devIcon} // ✅ FIXED ICON MAPPING
+                    src={categoryIcons[cat.icon] || devIcon}
                     alt={cat.name}
                   />
                   <p>{cat.name}</p>
@@ -126,7 +168,17 @@ export default function Browse() {
 
             <div className={styles.tagWrapper}>
               {topics.map((topic) => (
-                <div key={topic.id} className={styles.tag}>
+                <div
+                  key={topic.id}
+                  className={`${styles.tag} ${
+                    selectedTopic === topic.id ? styles.activeTag : ""
+                  }`}
+                  onClick={() =>
+                    setSelectedTopic(
+                      selectedTopic === topic.id ? null : topic.id,
+                    )
+                  }
+                >
                   <p>{topic.name}</p>
                 </div>
               ))}
@@ -141,7 +193,17 @@ export default function Browse() {
 
             <div className={styles.instructorWrapper}>
               {instructors.map((ins) => (
-                <div key={ins.id} className={styles.tag}>
+                <div
+                  key={ins.id}
+                  className={`${styles.tag} ${
+                    selectedInstructor === ins.id ? styles.activeTag : ""
+                  }`}
+                  onClick={() =>
+                    setSelectedInstructor(
+                      selectedInstructor === ins.id ? null : ins.id,
+                    )
+                  }
+                >
                   <img
                     className={styles.instructor}
                     src={ins.avatar}
