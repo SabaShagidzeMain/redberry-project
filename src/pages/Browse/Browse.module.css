@@ -101,6 +101,8 @@
 .activeFilters {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .activeFilters span {
@@ -112,15 +114,20 @@
 .activeFilters p {
   color: #8a8a8a;
   font-size: 14;
+  margin: 0;
 }
 
 .instructor {
   width: 30px;
   height: 30px;
+  object-fit: cover;
 }
 
 .cardPanel {
   width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .cardPanelTop {
@@ -287,4 +294,11 @@ h3 {
   border: none;
   color: #fff;
   border-radius: 8px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 }
