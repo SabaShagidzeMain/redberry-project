@@ -1,7 +1,26 @@
 import styles from "./Browse.module.css";
 import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 
 export default function Browse() {
+  const [showSort, setShowSort] = useState(false);
+  const [sort, setSort] = useState("Newest first");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowSort(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className={styles.page}>
       <div className={styles.breadcrumbs}>
@@ -154,11 +173,39 @@ export default function Browse() {
             <div className={styles.topText}>
               <p>Showing 9 out of 90</p>
             </div>
-            <div className={styles.sort}>
-              <p>
-                Sort by: <span>Newest first</span>
-              </p>
-              <img src="src/assets/categories/dropdown.png" alt="" />
+            <div className={styles.sortWrapper} ref={dropdownRef}>
+              <div
+                className={styles.sort}
+                onClick={() => setShowSort((prev) => !prev)}
+              >
+                <p>
+                  Sort by: <span>{sort}</span>
+                </p>
+                <img src="src/assets/categories/dropdown.png" alt="" />
+              </div>
+
+              {showSort && (
+                <div className={styles.dropdown}>
+                  {[
+                    "Newest first",
+                    "Price: Low to high",
+                    "Price: High to low",
+                    "Most popular",
+                    "Title: A-Z",
+                  ].map((option) => (
+                    <div
+                      key={option}
+                      className={styles.dropdownItem}
+                      onClick={() => {
+                        setSort(option);
+                        setShowSort(false);
+                      }}
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
