@@ -87,6 +87,33 @@ export default function Browse() {
           );
         }
 
+        allCourses = [...allCourses]; // prevent mutation issues
+
+        switch (sort) {
+          case "Newest first":
+            allCourses.sort((a, b) => b.id - a.id);
+            break;
+
+          case "Price: Low to high":
+            allCourses.sort((a, b) => a.basePrice - b.basePrice);
+            break;
+
+          case "Price: High to low":
+            allCourses.sort((a, b) => b.basePrice - a.basePrice);
+            break;
+
+          case "Most popular":
+            allCourses.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+            break;
+
+          case "Title: A-Z":
+            allCourses.sort((a, b) => a.title.localeCompare(b.title));
+            break;
+
+          default:
+            break;
+        }
+
         setCourses(allCourses.slice(0, 9));
         setMeta(coursesRes.meta || null);
 
@@ -101,7 +128,7 @@ export default function Browse() {
     };
 
     fetchAll();
-  }, [page, selectedCategories, selectedTopics, selectedInstructors]);
+  }, [page, selectedCategories, selectedTopics, selectedInstructors, sort]);
 
   const visibleTopics =
     selectedCategories.length > 0
