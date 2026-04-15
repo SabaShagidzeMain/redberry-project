@@ -149,10 +149,18 @@ export default function Browse() {
         </div>
 
         {/* RIGHT: course controls */}
-        <div className={styles.controls}>
-          <div>Showing 9 out of 90</div>
-
-          <div className={styles.sort}>Sort by: Newest first &gt;</div>
+        <div className={styles.cardPanel}>
+          <div className={styles.cardPanelTop}>
+            <div className={styles.topText}>
+              <p>Showing 9 out of 90</p>
+            </div>
+            <div className={styles.sort}>
+              <p>
+                Sort by: <span>Newest first</span>
+              </p>
+              <img src="src/assets/categories/dropdown.png" alt="" />
+            </div>
+          </div>
         </div>
       </div>
 

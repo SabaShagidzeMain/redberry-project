@@ -24,7 +24,7 @@
 }
 
 .filters {
-  width: 309px;
+  width: 30%;
 }
 
 .filtersHeader {
@@ -116,4 +116,34 @@
 .instructor {
   width: 30px;
   height: 30px;
+}
+
+.cardPanel {
+  width: 70%;
+}
+
+.cardPanelTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sort {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.sort img {
+  width: 20px;
+  height: 20px;
+}
+
+.sort span {
+  color: #4f46e5;
 }
