@@ -202,6 +202,7 @@
 .card {
   width: 100%;
   min-width: 0;
+  height: 451px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -338,4 +339,10 @@ h3 {
 .activeTag {
   border: 1px solid #4f46e5;
   background: rgba(79, 70, 229, 0.08);
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }

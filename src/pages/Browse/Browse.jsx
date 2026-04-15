@@ -345,45 +345,49 @@ export default function Browse() {
                 <p>Loading...</p>
               ) : (
                 courses.map((course) => (
-                  <div key={course.id} className={styles.card}>
-                    <div className={styles.top}>
-                      <img src={course.image} className={styles.image} />
+                  <Link to={`/course/${course.id}`} className={styles.cardLink}>
+                    <div key={course.id} className={styles.card}>
+                      <div className={styles.top}>
+                        <img src={course.image} className={styles.image} />
 
-                      <div className={styles.meta}>
-                        <div className={styles.metaLeft}>
-                          <span>{course.instructor?.name}</span>
-                          <span> / </span>
-                          <span>{course.durationWeeks} weeks</span>
+                        <div className={styles.meta}>
+                          <div className={styles.metaLeft}>
+                            <span>{course.instructor?.name}</span>
+                            <span> / </span>
+                            <span>{course.durationWeeks} weeks</span>
+                          </div>
+
+                          <div className={styles.metaRight}>
+                            <span>⭐ {course.avgRating}</span>
+                          </div>
                         </div>
 
-                        <div className={styles.metaRight}>
-                          <span>⭐ {course.avgRating}</span>
+                        <h3>{course.title}</h3>
+
+                        <div className={styles.cardCategory}>
+                          <img
+                            src={
+                              categoryIcons[course.category?.icon] || devIcon
+                            }
+                            alt={course.category?.name}
+                            className={styles.categoryIcon}
+                          />
+                          <span>{course.category?.name}</span>
                         </div>
                       </div>
 
-                      <h3>{course.title}</h3>
+                      <div className={styles.bottom}>
+                        <div className={styles.priceWrapper}>
+                          <span className={styles.starting}>Starting from</span>
+                          <span className={styles.price}>
+                            ${Math.floor(Number(course.basePrice))}
+                          </span>
+                        </div>
 
-                      <div className={styles.cardCategory}>
-                        <img
-                          src={categoryIcons[course.category?.icon] || devIcon}
-                          alt={course.category?.name}
-                          className={styles.categoryIcon}
-                        />
-                        <span>{course.category?.name}</span>
+                        <button className={styles.cardButton}>Details</button>
                       </div>
                     </div>
-
-                    <div className={styles.bottom}>
-                      <div className={styles.priceWrapper}>
-                        <span className={styles.starting}>Starting from</span>
-                        <span className={styles.price}>
-                          ${Math.floor(Number(course.basePrice))}
-                        </span>
-                      </div>
-
-                      <button className={styles.cardButton}>Details</button>
-                    </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>
