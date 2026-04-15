@@ -23,18 +23,43 @@ export default function Browse() {
             </div>
             <div className={styles.tagWrapper}>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/categories/development.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Development</p>
               </div>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/categories/design.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Design</p>
               </div>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/categories/business.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Business</p>
               </div>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/categories/datasci.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Data Science</p>
               </div>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/categories/marketing.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Marketing</p>
               </div>
             </div>
@@ -83,15 +108,35 @@ export default function Browse() {
             </div>
             <div className={styles.instructorWrapper}>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/Instructors/Marilyn.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Marilyn Mango</p>
               </div>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/Instructors/Ryan.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Ryan Dorwart</p>
               </div>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/Instructors/Roger.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Roger Calzoni</p>
               </div>
               <div className={styles.tag}>
+                <img
+                  src="src/assets/Instructors/Zain.png"
+                  className={styles.instructor}
+                  alt=""
+                />
                 <p>Zain Philips</p>
               </div>
             </div>
