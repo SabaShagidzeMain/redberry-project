@@ -31,6 +31,7 @@
   font-weight: medium;
   color: #525252;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .nav_tag img {
