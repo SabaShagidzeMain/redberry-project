@@ -6,20 +6,7 @@ import { authApi } from "../../../api/auth.api";
 
 export default function ProfileModal({ onClose }) {
   const { user, login, token } = useAuth();
-
-  // 🔥 DEBUG: modal lifecycle
-  console.log("🔥 PROFILE MODAL OPENED");
-  console.log("👤 CONTEXT USER:", user);
-  console.log("🔑 TOKEN:", token);
-
-  useEffect(() => {
-    console.log("📦 ProfileModal mounted");
-    console.log("📊 initial user snapshot:", user);
-  }, []);
-
-  useEffect(() => {
-    console.log("🔄 USER UPDATED IN MODAL:", user);
-  }, [user]);
+  const [preview, setPreview] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -43,9 +30,6 @@ export default function ProfileModal({ onClose }) {
     });
   }, [user]);
 
-  // -------------------------
-  // INPUT
-  // -------------------------
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
@@ -53,23 +37,19 @@ export default function ProfileModal({ onClose }) {
     }));
   };
 
-  // -------------------------
-  // FILE
-  // -------------------------
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
-    console.log("📁 FILE PICKED:", file);
-
     if (!file) return;
 
     setForm((prev) => ({
       ...prev,
       avatar: file,
     }));
+
+    setPreview(URL.createObjectURL(file));
   };
 
   const handleClickUpload = () => {
-    console.log("🖱️ Upload click triggered");
     fileInputRef.current?.click();
   };
 
@@ -77,30 +57,21 @@ export default function ProfileModal({ onClose }) {
     e.preventDefault();
 
     const file = e.dataTransfer?.files?.[0];
-
-    console.log("💥 DROP EVENT:", file);
-
     if (!file) return;
 
     setForm((prev) => ({
       ...prev,
       avatar: file,
     }));
+
+    setPreview(URL.createObjectURL(file)); // 🔥 same here
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    console.log("🔥 dragging over upload box");
   };
-
-  // -------------------------
-  // SAVE PROFILE
-  // -------------------------
   const handleSave = async () => {
     try {
-      console.log("🚀 SAVE CLICKED");
-      console.log("📦 FORM STATE:", form);
-
       const formData = new FormData();
 
       formData.append("fullName", form.fullName);
@@ -114,23 +85,22 @@ export default function ProfileModal({ onClose }) {
 
       const res = await authApi.updateProfile(formData);
 
-      console.log("🔥 PROFILE UPDATE RESPONSE:", res);
-
       const updatedUser = res.data?.data || res.data;
-
-      console.log("👤 UPDATED USER:", updatedUser);
 
       login(token, updatedUser);
 
       onClose();
     } catch (err) {
-      console.error("❌ PROFILE UPDATE ERROR:", err);
+      console.error("PROFILE UPDATE ERROR:", err);
     }
   };
 
   return (
     <Modal onClose={onClose}>
       <div className={styles.profileModal}>
+        <div className={styles.heading}>
+          <h2>Profile</h2>
+        </div>
         <div className={styles.header}>
           <div className={styles.avatarWrapper}>
             <img
@@ -154,46 +124,74 @@ export default function ProfileModal({ onClose }) {
         </div>
 
         <div className={styles.form}>
-          <input
-            name="fullName"
-            placeholder="Full Name"
-            value={form.fullName}
-            onChange={handleChange}
-          />
+          <div className={styles.formSegment}>
+            <p>Full Name</p>
+            <input
+              name="fullName"
+              placeholder="Full Name"
+              value={form.fullName}
+              onChange={handleChange}
+            />
+          </div>
 
-          <input
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-          />
+          <div className={styles.formSegment}>
+            <p>Email</p>
+            <input
+              name="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+            />
+          </div>
 
-          <input
-            name="mobileNumber"
-            placeholder="Mobile Number"
-            value={form.mobileNumber}
-            onChange={handleChange}
-          />
-
-          <input
-            name="age"
-            placeholder="Age"
-            value={form.age}
-            onChange={handleChange}
-          />
+          <div className={styles.formDouble}>
+            <div className={styles.formSegment}>
+              <p>Mobile Number</p>
+              <input
+                name="mobileNumber"
+                placeholder="Mobile Number"
+                value={form.mobileNumber}
+                onChange={handleChange}
+              />
+            </div>
+            <div className={styles.formSegment}>
+              <p>Age</p>
+              <input
+                name="age"
+                placeholder="Age"
+                value={form.age}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
 
           <div
             className={styles.uploadBox}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
-            <p>
-              Drag & drop or{" "}
-              <span onClick={handleClickUpload}>upload avatar</span>
-            </p>
-
-            {form.avatar && (
-              <p className={styles.fileName}>{form.avatar.name}</p>
+            {preview ? (
+              <div className={styles.preview}>
+                <img
+                  src={preview}
+                  className={styles.previewImg}
+                  alt="preview"
+                />
+                <p className={styles.fileName}>{form.avatar.name}</p>
+              </div>
+            ) : (
+              <>
+                <img
+                  src="src/assets/icons/upload.png"
+                  alt=""
+                  className={styles.regUploadIcon}
+                />
+                <p>
+                  Drag & drop or{" "}
+                  <span onClick={handleClickUpload}>upload avatar</span>
+                </p>
+                <p className={styles.regUploadTags}>JPG, PNG or WebP</p>
+              </>
             )}
 
             <input
