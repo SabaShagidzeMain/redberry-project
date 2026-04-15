@@ -1,0 +1,122 @@
+.page {
+  margin: 70px 177px;
+}
+
+.breadcrumbs {
+  font-size: 18px;
+  color: #666666;
+  cursor: pointer;
+}
+
+.wayHome {
+  color: #666666;
+  text-decoration: none;
+}
+
+.breadcrumbs span {
+  color: #736bea;
+}
+
+.detailsWrapper {
+  margin: 32px 0;
+}
+
+.detailsLeft {
+  width: 903px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detailsLeft h1 {
+  margin: 0;
+}
+
+.detailsLeft img {
+  border-radius: 10px;
+  height: 475px;
+}
+
+.infoWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+}
+
+.infoWrapper img {
+  width: 24px;
+  height: 24px;
+}
+
+.infoWrapper p {
+  margin: 0;
+  font-size: 14px;
+  color: #525252;
+  font-weight: 600;
+}
+
+.tag {
+  padding: 7.5px 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.tag {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.tag img {
+  width: 24px;
+  height: 24px;
+}
+
+.metaFirst {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metaLeft {
+  display: flex;
+  gap: 12px;
+}
+
+.metaRight {
+  display: flex;
+  gap: 12px;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.metaRight p {
+  margin: 0;
+}
+
+.instructor {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+}
+
+.tag p {
+  margin: 0;
+}
+
+.description {
+  color: #8a8a8a;
+}
+
+.description h3 {
+  font-size: 20px;
+}
+
+.description p {
+  font-size: 16px;
+}

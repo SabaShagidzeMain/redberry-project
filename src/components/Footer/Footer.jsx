@@ -1,4 +1,10 @@
 import styles from "./Footer.module.css";
+import logo from "../../assets/logo.png";
+import facebook from "../../assets/socials/Facebook.png";
+import twitter from "../../assets/socials/Twitter.png";
+import instagram from "../../assets/socials/Instagram.png";
+import linkedin from "../../assets/socials/Linkedin.png";
+import youtube from "../../assets/socials/Youtube.png";
 
 export default function Footer() {
   return (
@@ -7,7 +13,7 @@ export default function Footer() {
         <div className={styles.footerTop}>
           <div className={styles.footerBrand}>
             <div className={styles.brandLogo}>
-              <img src="src/assets/Logo.png" alt="" />
+              <img src={logo} alt="" />
               <h2>BootCamp</h2>
             </div>
             <div>
@@ -17,19 +23,11 @@ export default function Footer() {
               </p>
             </div>
             <div className={styles.socialsWrapper}>
-              <img
-                src="src/assets/socials/Facebook.png"
-                alt=""
-                className={styles.fbIcon}
-              />
-              <img src="src/assets/socials/Twitter.png" alt="" />
-              <img src="src/assets/socials/Instagram.png" alt="" />
-              <img src="src/assets/socials/LinkedIn.png" alt="" />
-              <img
-                src="src/assets/socials/YouTube.png"
-                alt=""
-                className={styles.ytIcon}
-              />
+              <img src={facebook} alt="" className={styles.fbIcon} />
+              <img src={twitter} alt="" />
+              <img src={instagram} alt="" />
+              <img src={linkedin} alt="" />
+              <img src={youtube} alt="" className={styles.ytIcon} />
             </div>
           </div>
           <div className={styles.footerList}>
