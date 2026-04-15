@@ -258,18 +258,41 @@ export default function Browse() {
 
           {/* PAGINATION */}
           <div className={styles.pagination}>
+            {/* LEFT ARROW */}
+            <button
+              className={`${styles.pageBtn} ${page === 1 ? styles.disabled : ""}`}
+              onClick={() => page > 1 && setPage(page - 1)}
+              disabled={page === 1}
+            >
+              ←
+            </button>
+
+            {/* PAGE NUMBERS */}
             {meta &&
               Array.from({ length: meta.lastPage }, (_, i) => i + 1).map(
                 (p) => (
                   <button
                     key={p}
                     onClick={() => setPage(p)}
-                    className={p === page ? styles.activePage : ""}
+                    className={`${styles.pageBtn} ${
+                      p === page ? styles.activePage : ""
+                    }`}
                   >
                     {p}
                   </button>
                 ),
               )}
+
+            {/* RIGHT ARROW */}
+            <button
+              className={`${styles.pageBtn} ${
+                meta && page === meta.lastPage ? styles.disabled : ""
+              }`}
+              onClick={() => meta && page < meta.lastPage && setPage(page + 1)}
+              disabled={meta && page === meta.lastPage}
+            >
+              →
+            </button>
           </div>
         </div>
       </div>
