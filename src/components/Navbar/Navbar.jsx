@@ -1,13 +1,16 @@
 import styles from "./Navbar.module.css";
 import LoginModal from "../Auth/Login/LoginModal";
 import RegisterModal from "../Auth/Register/RegisterModal";
-import { useState, useEffect } from "react";
+import ProfileModal from "../Auth/Profile/ProfileModal";
+import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Navbar() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const { isAuthenticated, logout } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
+
+  const { isAuthenticated, logout, user } = useAuth();
 
   return (
     <nav className={styles.nav}>
@@ -31,12 +34,14 @@ export default function Navbar() {
 
           <div className={styles.button_container}>
             {isAuthenticated ? (
-              <div className={styles.profile}>
-                <div className={styles.avatarCircle}>
-                  <img src="src/assets/icons/user.png" alt="profile" />
-                </div>
-
-                <button onClick={logout}>Logout</button>
+              <div
+                className={styles.avatarCircle}
+                onClick={() => setShowProfile(true)}
+              >
+                <img
+                  src={user?.avatar || "src/assets/icons/User.svg"}
+                  alt="profile"
+                />
               </div>
             ) : (
               <>
@@ -61,6 +66,7 @@ export default function Navbar() {
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showRegister && <RegisterModal onClose={() => setShowRegister(false)} />}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </nav>
   );
 }

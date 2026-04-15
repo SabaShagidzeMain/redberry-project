@@ -39,7 +39,6 @@
 }
 
 .button_container {
-  margin-left: 36px;
   display: flex;
   gap: 15px;
 }
@@ -47,6 +46,7 @@
 .right {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .log_btn {
@@ -85,4 +85,20 @@
   border: 1px solid #4f46e5;
   color: #fff;
   cursor: pointer;
+}
+
+.avatarCircle {
+  background-color: #eeedfc;
+  border-radius: 100%;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.profile {
+  display: flex;
+  margin-left: 36px;
 }

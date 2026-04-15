@@ -8,4 +8,6 @@ export const authApi = {
   me: () => api.get("/me"),
 
   logout: () => api.post("/logout"),
+
+  updateProfile: (data) => api.put("/profile", data),
 };
