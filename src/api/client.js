@@ -2,9 +2,6 @@ import { getToken } from "../utils/auth";
 
 const BASE_URL = "https://api.redclass.redberryinternship.ge/api";
 
-/**
- * Core request handler
- */
 async function request(endpoint, method = "GET", body) {
   const token = getToken();
   const isFormData = body instanceof FormData;
@@ -38,9 +35,6 @@ async function request(endpoint, method = "GET", body) {
   return data;
 }
 
-/**
- * API wrapper
- */
 export const api = {
   get: (url) => request(url, "GET"),
 

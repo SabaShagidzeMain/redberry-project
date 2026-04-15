@@ -1,11 +1,21 @@
 import styles from "./Browse.module.css";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import { coursesApi } from "../../api/courses.api";
+import devIcon from "../../assets/categories/development.png";
+import designIcon from "../../assets/categories/design.png";
+import businessIcon from "../../assets/categories/business.png";
+import dataIcon from "../../assets/categories/datasci.png";
+import marketingIcon from "../../assets/categories/marketing.png";
 
 export default function Browse() {
   const [showSort, setShowSort] = useState(false);
   const [sort, setSort] = useState("Newest first");
   const dropdownRef = useRef(null);
+  const [courses, setCourses] = useState([]);
+  const [meta, setMeta] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -20,6 +30,42 @@ export default function Browse() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+
+        const res = await coursesApi.getCourses({
+          page,
+        });
+
+        const allCourses = res.data || [];
+
+        // ✅ FORCE 9 ITEMS PER PAGE (frontend-controlled pagination)
+        const paginatedCourses = allCourses.slice(0, 9);
+
+        setCourses(paginatedCourses);
+
+        // ⚠️ meta still comes from backend (likely assumes 10/page)
+        setMeta(res.meta || null);
+      } catch (err) {
+        console.error("❌ COURSES ERROR:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, [page]);
+
+  const categoryIcons = {
+    development: devIcon,
+    design: designIcon,
+    business: businessIcon,
+    "data-science": dataIcon,
+    marketing: marketingIcon,
+  };
 
   return (
     <div className={styles.page}>
@@ -208,11 +254,69 @@ export default function Browse() {
               )}
             </div>
           </div>
+          {/* COURSES */}
+          <div className={styles.grid}>
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              courses.map((course) => (
+                <div key={course.id} className={styles.card}>
+                  <div className={styles.top}>
+                    <img src={course.image} className={styles.image} />
+
+                    <div className={styles.meta}>
+                      <div className={styles.metaLeft}>
+                        <span>{course.instructor?.name}</span>
+                        <span> / </span>
+                        <span>{course.durationWeeks} weeks</span>
+                      </div>
+                      <div className={styles.metaRight}>
+                        <span>⭐ {course.avgRating}</span>
+                      </div>
+                    </div>
+
+                    <h3>{course.title}</h3>
+
+                    <div className={styles.cardCategory}>
+                      <img
+                        src={categoryIcons[course.category?.icon]}
+                        alt={course.category?.name}
+                        className={styles.categoryIcon}
+                      />
+                      <span>{course.category?.name}</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.bottom}>
+                    <div className={styles.priceWrapper}>
+                      <span className={styles.starting}>Starting from</span>
+                      <span className={styles.price}>
+                        {" "}
+                        ${Math.floor(Number(course.basePrice))}
+                      </span>
+                    </div>
+                    <button className={styles.cardButton}>Details</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <div className={styles.pagination}>
+            {meta &&
+              Array.from({ length: meta.lastPage }, (_, i) => i + 1).map(
+                (p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={p === page ? styles.activePage : ""}
+                  >
+                    {p}
+                  </button>
+                ),
+              )}
+          </div>
         </div>
       </div>
-
-      {/* COURSES */}
-      <div className={styles.grid}>{/* Course cards go here */}</div>
     </div>
   );
 }
