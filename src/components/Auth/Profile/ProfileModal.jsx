@@ -31,10 +31,15 @@ export default function ProfileModal({ onClose }) {
   }, [user]);
 
   const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+
+    setForm((prev) => {
+      const updated = {
+        ...prev,
+        [e.target.name]: e.target.value,
+      };
+
+      return updated;
+    });
   };
 
   const handleFileChange = (e) => {
@@ -72,21 +77,28 @@ export default function ProfileModal({ onClose }) {
   };
   const handleSave = async () => {
     try {
-      const formData = new FormData();
-
-      formData.append("fullName", form.fullName);
-      formData.append("email", form.email);
-      formData.append("mobileNumber", form.mobileNumber);
-      formData.append("age", form.age);
+      let res;
 
       if (form.avatar) {
+        const formData = new FormData();
+
+        formData.append("full_name", form.fullName);
+        formData.append("email", form.email);
+        formData.append("mobile_number", form.mobileNumber);
+        formData.append("age", form.age);
         formData.append("avatar", form.avatar);
+
+        res = await authApi.updateProfile(formData);
+      } else {
+        // 🔥 JSON (no image)
+        res = await authApi.updateProfile({
+          full_name: form.fullName,
+          email: form.email,
+          mobile_number: form.mobileNumber,
+          age: form.age,
+        });
       }
-
-      const res = await authApi.updateProfile(formData);
-
       const updatedUser = res.data?.data || res.data;
-
       login(token, updatedUser);
 
       onClose();
@@ -94,7 +106,6 @@ export default function ProfileModal({ onClose }) {
       console.error("PROFILE UPDATE ERROR:", err);
     }
   };
-
   return (
     <Modal onClose={onClose}>
       <div className={styles.profileModal}>

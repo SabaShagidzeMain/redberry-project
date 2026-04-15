@@ -9,9 +9,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // -------------------------
-  // LOAD SESSION ON START
-  // -------------------------
   useEffect(() => {
     const storedToken = getToken();
 
@@ -25,13 +22,11 @@ export function AuthProvider({ children }) {
     authApi
       .me()
       .then((res) => {
-        console.log("🔥 ME RESPONSE:", res);
-
         const fetchedUser = res.data?.data || res.data;
         setUser(fetchedUser);
       })
       .catch((err) => {
-        console.log("❌ ME ERROR:", err);
+        console.log("ME ERROR:", err);
 
         removeToken();
         setTokenState(null);
@@ -42,14 +37,7 @@ export function AuthProvider({ children }) {
       });
   }, []);
 
-  // -------------------------
-  // LOGIN
-  // -------------------------
   const login = (token, userData) => {
-    console.log("🔥 LOGIN CALLED");
-    console.log("🔑 TOKEN:", token);
-    console.log("👤 USER DATA:", userData);
-
     if (!token) {
       console.error("❌ Missing token in login()");
       return;
@@ -65,9 +53,6 @@ export function AuthProvider({ children }) {
     setUser(userData);
   };
 
-  // -------------------------
-  // LOGOUT
-  // -------------------------
   const logout = () => {
     removeToken();
     setTokenState(null);
