@@ -1,8 +1,10 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { coursesApi } from "../../api/courses.api";
+import { scheduleApi } from "../../api/schedule.api";
 import styles from "./CourseDetails.module.css";
 import { Link } from "react-router-dom";
+
 import calendar from "../../assets/icons/callendar.png";
 import clock from "../../assets/icons/clock.png";
 
@@ -18,14 +20,15 @@ export default function CourseDetails() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [schedule, setSchedule] = useState(null);
+  const [weeklyOptions, setWeeklyOptions] = useState([]);
+  const [timeOptions, setTimeOptions] = useState([]);
+  const [sessionOptions, setSessionOptions] = useState([]);
 
-  const avgRating = (() => {
-    if (!course?.reviews?.length) return null;
+  const [selectedWeek, setSelectedWeek] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedSession, setSelectedSession] = useState(null);
 
-    const total = course.reviews.reduce((acc, r) => acc + r.rating, 0);
-    return (total / course.reviews.length).toFixed(1);
-  })();
+  const [openStep, setOpenStep] = useState("week");
 
   const categoryIcons = {
     development: devIcon,
@@ -35,17 +38,11 @@ export default function CourseDetails() {
     marketing: marketingIcon,
   };
 
-  const [selectedWeek, setSelectedWeek] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [selectedSession, setSelectedSession] = useState(null);
-
-  const weeklyOptions = schedule?.weeklySchedule
-    ? [schedule.weeklySchedule]
-    : [];
-
-  const timeOptions = schedule?.timeSlot ? [schedule.timeSlot] : [];
-
-  const sessionOptions = schedule?.sessionType ? [schedule.sessionType] : [];
+  const avgRating = (() => {
+    if (!course?.reviews?.length) return null;
+    const total = course.reviews.reduce((acc, r) => acc + r.rating, 0);
+    return (total / course.reviews.length).toFixed(1);
+  })();
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -55,11 +52,11 @@ export default function CourseDetails() {
         const res = await coursesApi.getCourseById(id);
         const data = res.data;
 
-        setCourse(data);
+        console.log("COURSE:", data);
 
-        setSchedule(data.enrollment?.schedule || null);
+        setCourse(data);
       } catch (err) {
-        console.error("❌ COURSE FETCH ERROR:", err);
+        console.error("COURSE ERROR:", err);
       } finally {
         setLoading(false);
       }
@@ -68,8 +65,103 @@ export default function CourseDetails() {
     fetchCourse();
   }, [id]);
 
+  useEffect(() => {
+    const fetchWeeks = async () => {
+      try {
+        const res = await scheduleApi.getWeeklySchedules(id);
+
+        console.log("WEEKLY SCHEDULES:", res.data);
+
+        setWeeklyOptions(res.data || []);
+      } catch (err) {
+        console.error("WEEK ERROR:", err);
+      }
+    };
+
+    fetchWeeks();
+  }, [id]);
+
+  const handleWeekSelect = async (week) => {
+    console.log("👉 WEEK:", week);
+
+    setSelectedWeek(week);
+    setSelectedTime(null);
+    setSelectedSession(null);
+    setTimeOptions([]);
+    setSessionOptions([]);
+
+    setOpenStep("time");
+
+    try {
+      const res = await scheduleApi.getTimeSlots(id, week.id);
+
+      console.log("TIME SLOTS:", res.data);
+
+      setTimeOptions(res.data || []);
+    } catch (err) {
+      console.error("TIME ERROR:", err);
+    }
+  };
+
+  const handleTimeSelect = async (time) => {
+    console.log("TIME:", time);
+
+    setSelectedTime(time);
+    setSelectedSession(null);
+    setSessionOptions([]);
+
+    setOpenStep("session");
+
+    try {
+      const res = await scheduleApi.getSessionTypes(
+        id,
+        selectedWeek.id,
+        time.id,
+      );
+
+      console.log("SESSIONS:", res.data);
+
+      setSessionOptions(res.data || []);
+    } catch (err) {
+      console.error("SESSION ERROR:", err);
+    }
+  };
+
+  const handleSessionSelect = (session) => {
+    console.log("👉 SESSION:", session);
+    setSelectedSession(session);
+  };
+
+  const sessionModifier = selectedSession?.priceModifier ?? 0;
+  const totalPrice = course ? course.basePrice + sessionModifier : 0;
+
   if (loading) return <p>Loading...</p>;
   if (!course) return <p>Course not found</p>;
+
+  const formatWeekLabel = (label) => {
+    if (!label) return "";
+
+    const map = {
+      Monday: "Mon",
+      Tuesday: "Tue",
+      Wednesday: "Wed",
+      Thursday: "Thu",
+      Friday: "Fri",
+      Saturday: "Sat",
+      Sunday: "Sun",
+    };
+
+    // Weekend case
+    if (label.toLowerCase().includes("weekend")) {
+      return "Weekend";
+    }
+
+    return label
+      .split("-")
+      .map((part) => part.trim())
+      .map((day) => map[day] || day)
+      .join("–");
+  };
 
   return (
     <div className={styles.page}>
@@ -83,6 +175,7 @@ export default function CourseDetails() {
         <span>{course.title}</span>
       </div>
       <div className={styles.detailsWrapper}>
+        {/* LEFT */}
         <div className={styles.detailsLeft}>
           <h1>{course.title}</h1>
           <img src={course.image} alt="" />
@@ -127,78 +220,170 @@ export default function CourseDetails() {
             <p>{course.description}</p>
           </div>
         </div>
+
+        {/* RIGHT */}
         <div className={styles.detailsRight}>
-          <h3>Enroll</h3>
-
-          {/* WEEKLY SCHEDULE */}
-          <div className={styles.dropdownGroup}>
-            <label>Weekly Schedule</label>
-            <select
-              value={selectedWeek?.id || ""}
-              onChange={(e) =>
-                setSelectedWeek(
-                  weeklyOptions.find((w) => w.id === Number(e.target.value)),
-                )
-              }
+          {/* WEEK */}
+          <div className={styles.stepWrapper}>
+            {/* WEEK */}
+            <div
+              className={`${styles.step} ${
+                openStep === "week" ? styles.activeStep : ""
+              }`}
             >
-              <option value="">Select schedule</option>
-              {weeklyOptions.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.label}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div className={styles.stepTop}>
+                <h3 onClick={() => setOpenStep("week")}>① Weekly Schedule</h3>
+              </div>
 
-          {/* TIME SLOT */}
-          <div className={styles.dropdownGroup}>
-            <label>Time Slot</label>
-            <select
-              value={selectedTime?.id || ""}
-              onChange={(e) =>
-                setSelectedTime(
-                  timeOptions.find((t) => t.id === Number(e.target.value)),
-                )
-              }
-            >
-              <option value="">Select time</option>
-              {timeOptions.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </div>
+              <div
+                className={`${styles.stepBot} ${
+                  openStep === "week" ? styles.open : styles.closed
+                }`}
+              >
+                <div className={styles.options}>
+                  {weeklyOptions.length === 0 && <p>Loading schedules...</p>}
 
-          {/* SESSION TYPE */}
-          <div className={styles.dropdownGroup}>
-            <label>Session Type</label>
-            <select
-              value={selectedSession?.id || ""}
-              onChange={(e) =>
-                setSelectedSession(
-                  sessionOptions.find((s) => s.id === Number(e.target.value)),
-                )
-              }
+                  {weeklyOptions.map((w) => (
+                    <button
+                      key={w.id}
+                      className={`${styles.option} ${
+                        selectedWeek?.id === w.id ? styles.active : ""
+                      }`}
+                      onClick={() => handleWeekSelect(w)}
+                    >
+                      {formatWeekLabel(w.label)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* TIME */}
+            <div
+              className={`${styles.step} ${
+                openStep === "time" ? styles.activeStep : ""
+              }`}
             >
-              <option value="">Select type</option>
-              {sessionOptions.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name} (+${s.priceModifier})
-                </option>
-              ))}
-            </select>
+              <div className={styles.stepTop}>
+                <h3
+                  onClick={() => selectedWeek && setOpenStep("time")}
+                  style={{ opacity: selectedWeek ? 1 : 0.4 }}
+                >
+                  ② Time Slot
+                </h3>
+              </div>
+
+              <div
+                className={`${styles.stepBot} ${
+                  openStep === "time" ? styles.open : styles.closed
+                }`}
+              >
+                <div className={styles.options}>
+                  {timeOptions.map((t) => (
+                    <button
+                      key={t.id}
+                      className={`${styles.option} ${
+                        selectedTime?.id === t.id ? styles.active : ""
+                      }`}
+                      onClick={() => handleTimeSelect(t)}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* SESSION */}
+            <div
+              className={`${styles.step} ${
+                openStep === "session" ? styles.activeStep : ""
+              }`}
+            >
+              <div className={styles.stepTop}>
+                <h3
+                  onClick={() => selectedTime && setOpenStep("session")}
+                  style={{ opacity: selectedTime ? 1 : 0.4 }}
+                >
+                  ③ Session Type
+                </h3>
+              </div>
+
+              <div
+                className={`${styles.stepBot} ${
+                  openStep === "session" ? styles.open : styles.closed
+                }`}
+              >
+                <div className={styles.options}>
+                  {sessionOptions.map((s) => {
+                    const isFull = s.availableSeats === 0;
+                    const lowSeats =
+                      s.availableSeats > 0 && s.availableSeats < 5;
+
+                    return (
+                      <button
+                        key={s.id}
+                        disabled={isFull}
+                        className={`${styles.option} ${
+                          selectedSession?.id === s.id ? styles.active : ""
+                        } ${isFull ? styles.disabled : ""}`}
+                        onClick={() => handleSessionSelect(s)}
+                      >
+                        <div>{s.name}</div>
+
+                        <div>
+                          {s.priceModifier > 0
+                            ? `+$${s.priceModifier}`
+                            : "Included"}
+                        </div>
+
+                        <div>{s.availableSeats} seats</div>
+
+                        {lowSeats && (
+                          <div className={styles.warning}>
+                            Only {s.availableSeats} left!
+                          </div>
+                        )}
+
+                        {isFull && (
+                          <div className={styles.full}>Fully Booked</div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* PRICE */}
           <div className={styles.priceBox}>
-            <p>Base price: ${course.basePrice}</p>
-            <p>
-              Total: ${course.basePrice + (selectedSession?.priceModifier || 0)}
-            </p>
+            <div className={styles.priceWrapper}>
+              <div className={styles.priceTop}>
+                <div className={styles.priceContainer}>
+                  <h3 className={styles.priceLeft}>Total:</h3>
+                  <h3>${totalPrice}</h3>
+                </div>
+              </div>
+              <div className={styles.priceBottom}>
+                <div className={styles.priceContainer}>
+                  <p className={styles.priceLeft}>Base Price:</p>
+                  <p>+ ${course.basePrice}</p>
+                </div>
+                <div className={styles.priceContainer}>
+                  <p className={styles.priceLeft}>Session Type:</p>
+                  <p>
+                    {selectedSession
+                      ? selectedSession.priceModifier > 0
+                        ? `+ $${selectedSession.priceModifier}`
+                        : "Included"
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <button className={styles.enrollBtn}>Enroll Now</button>
           </div>
-
-          <button className={styles.enrollBtn}>Enroll Now</button>
         </div>
       </div>
     </div>
