@@ -31,6 +31,10 @@ export default function Browse() {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedInstructors, setSelectedInstructors] = useState([]);
 
+  const [silentLoading, setSilentLoading] = useState(false);
+
+  const isFirstRender = useRef(true);
+
   const activeFilterCount =
     selectedCategories.length +
     selectedTopics.length +
@@ -60,7 +64,11 @@ export default function Browse() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        setLoading(true);
+        if (isFirstRender.current) {
+          setLoading(true);
+        } else {
+          setSilentLoading(true);
+        }
 
         const [coursesRes, categoriesRes, topicsRes, instructorsRes] =
           await Promise.all([
@@ -72,51 +80,39 @@ export default function Browse() {
 
         let allCourses = coursesRes.data || [];
 
-        // CATEGORY filter
         if (selectedCategories.length > 0) {
           allCourses = allCourses.filter((c) =>
             selectedCategories.includes(c.category?.id),
           );
         }
 
-        // TOPIC filter
         if (selectedTopics.length > 0) {
           allCourses = allCourses.filter((c) =>
             selectedTopics.includes(c.topic?.id),
           );
         }
 
-        // INSTRUCTOR filter
         if (selectedInstructors.length > 0) {
           allCourses = allCourses.filter((c) =>
             selectedInstructors.includes(c.instructor?.id),
           );
         }
 
-        allCourses = [...allCourses]; // prevent mutation issues
-
         switch (sort) {
           case "Newest first":
             allCourses.sort((a, b) => b.id - a.id);
             break;
-
           case "Price: Low to high":
             allCourses.sort((a, b) => a.basePrice - b.basePrice);
             break;
-
           case "Price: High to low":
             allCourses.sort((a, b) => b.basePrice - a.basePrice);
             break;
-
           case "Most popular":
             allCourses.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
             break;
-
           case "Title: A-Z":
             allCourses.sort((a, b) => a.title.localeCompare(b.title));
-            break;
-
-          default:
             break;
         }
 
@@ -130,11 +126,19 @@ export default function Browse() {
         console.error("❌ BROWSE FETCH ERROR:", err);
       } finally {
         setLoading(false);
+        setSilentLoading(false);
+        isFirstRender.current = false;
       }
     };
 
     fetchAll();
   }, [page, selectedCategories, selectedTopics, selectedInstructors, sort]);
+
+  useEffect(() => {
+    if (!isFirstRender.current) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [page]);
 
   const visibleTopics =
     selectedCategories.length > 0
@@ -341,6 +345,7 @@ export default function Browse() {
             </div>
 
             {/* COURSES GRID */}
+            {loading && <LoadingScreen text="Loading courses..." />}
             <div className={styles.grid}>
               {loading ? (
                 <LoadingScreen text="Loading courses..." />
