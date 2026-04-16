@@ -8,11 +8,13 @@ import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import sparkles from "../../assets/icons/sparkles.png";
 import book from "../../assets/icons/book.png";
+import EnrollmentsDrawer from "../Drawer/EnrollmentsDrawer";
 
 export default function Navbar() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showEnrollments, setShowEnrollments] = useState(false);
 
   const { isAuthenticated, logout, user } = useAuth();
 
@@ -34,7 +36,10 @@ export default function Navbar() {
           </div>
 
           {isAuthenticated && (
-            <div className={styles.nav_tag}>
+            <div
+              className={styles.nav_tag}
+              onClick={() => setShowEnrollments(true)}
+            >
               <img src={book} alt="" />
               <p>Enrolled Courses</p>
             </div>
@@ -72,6 +77,11 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      <EnrollmentsDrawer
+        open={showEnrollments}
+        onClose={() => setShowEnrollments(false)}
+      />
 
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
       {showRegister && <RegisterModal onClose={() => setShowRegister(false)} />}
