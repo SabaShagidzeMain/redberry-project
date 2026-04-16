@@ -7,6 +7,7 @@ import carLeft from "../../assets/hero/carLeft.png";
 import carRight from "../../assets/hero/carRight.png";
 import blur from "../../assets/hero/blur.png";
 import lock from "../../assets/hero/lock.png";
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 
 import devIcon from "../../assets/categories/development.png";
 import designIcon from "../../assets/categories/design.png";
@@ -240,7 +241,7 @@ export default function MainPage() {
           <h3>Your Learning</h3>
 
           {loadingEnrolled ? (
-            <p>Loading...</p>
+            <LoadingScreen text="Loading courses..." />
           ) : enrolled.length ? (
             <div className={styles.cardRow}>
               {enrolled.map(renderEnrolledCard)}
@@ -258,9 +259,32 @@ export default function MainPage() {
         </div>
 
         <div className={styles.cardRow}>
-          {loadingFeatured ? <p>Loading...</p> : courses.map(renderCard)}
+          {loadingFeatured ? (
+            <LoadingScreen text="Loading courses..." />
+          ) : (
+            courses.map(renderCard)
+          )}
         </div>
       </div>
+
+      {!isLoggedIn && (
+        <div
+          className={styles.cardWrapper}
+          style={{ backgroundImage: `url(${blur})`, backgroundSize: `cover` }}
+        >
+          <div className={styles.blurWrapper}>
+            <div className={styles.blurCard}>
+              <div className={styles.lockWrapper}>
+                <img src={lock} alt="" />
+              </div>
+              <div className={styles.blurText}>
+                <p>Sign in to track your learning progress</p>
+                <button>Sign in</button>
+              </div>
+            </div>{" "}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

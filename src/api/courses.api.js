@@ -1,3 +1,4 @@
+import { data } from "react-router-dom";
 import { api } from "./client";
 
 export const coursesApi = {
@@ -23,5 +24,9 @@ export const coursesApi = {
 
   getFeaturedCourses: () => {
     return api.get("/courses/featured");
+  },
+
+  submitReview: (courseId, data) => {
+    return api.post(`/courses/${courseId}/reviews`, data);
   },
 };

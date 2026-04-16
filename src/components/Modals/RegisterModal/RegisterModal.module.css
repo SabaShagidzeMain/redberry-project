@@ -204,3 +204,9 @@
 .signUp a {
   color: #141414;
 }
+
+.error {
+  font-size: 12px;
+  color: red;
+  margin-bottom: 1rem;
+}

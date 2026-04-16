@@ -54,7 +54,7 @@ export default function Navbar() {
                 <img
                   src={user?.avatar || "src/assets/icons/User.svg"}
                   alt="profile"
-                  className={styles.avatarCircle}
+                  className={styles.avatarCircleImg}
                 />
               </div>
             ) : (

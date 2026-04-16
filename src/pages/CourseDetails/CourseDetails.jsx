@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 
 import { coursesApi } from "../../api/courses.api";
 import { scheduleApi } from "../../api/schedule.api";
@@ -191,7 +192,7 @@ export default function CourseDetails() {
   };
 
   // ---------------- UI ----------------
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <LoadingScreen text="Loading courses..." />;
   if (!course) return <p>Course not found</p>;
 
   return (

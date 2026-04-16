@@ -4,12 +4,13 @@ import { Routes, Route } from "react-router-dom";
 import Browse from "./pages/Browse/Browse";
 import CourseDetails from "./pages/CourseDetails/CourseDetails";
 import MainPage from "./pages/MainPage/MainPage";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 
 function App() {
   return (
     <div className="appLayout">
       <Navbar />
-
+      <ScrollToTop />
       <main className="pageContent">
         <Routes>
           <Route path="/" element={<MainPage />} />

@@ -9,6 +9,8 @@ export default function RegisterModal({ onClose }) {
 
   const [step, setStep] = useState(1);
 
+  const [errors, setErrors] = useState({});
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -55,12 +57,9 @@ export default function RegisterModal({ onClose }) {
   };
 
   const handleRegister = async () => {
-    try {
-      if (form.password !== form.password_confirmation) {
-        console.error("Passwords do not match");
-        return;
-      }
+    if (!validateStep3()) return;
 
+    try {
       const formData = new FormData();
 
       formData.append("email", form.email);
@@ -75,13 +74,93 @@ export default function RegisterModal({ onClose }) {
       const res = await authApi.register(formData);
 
       setToken(res.data.token);
-
-      console.log("REGISTER SUCCESS:", res.data.user);
+      window.location.reload();
 
       onClose();
     } catch (err) {
-      console.error("REGISTER ERROR:", err.message);
+      console.error("REGISTER ERROR FULL:", err);
+
+      // 1. Case: backend returned structured axios error
+      const data = err.response?.data;
+
+      if (data?.errors) {
+        const normalized = normalizeErrors(data.errors);
+
+        setErrors((prev) => ({
+          ...prev,
+          ...normalized,
+        }));
+
+        if (normalized.email) setStep(1);
+        if (normalized.username) setStep(3);
+
+        return;
+      }
+
+      // 2. Case: plain thrown Error (your current case)
+      if (err.message) {
+        setErrors((prev) => ({
+          ...prev,
+          general: err.message,
+        }));
+
+        return;
+      }
+
+      // 3. fallback
+      setErrors({
+        general: "Something went wrong",
+      });
     }
+  };
+  const validateStep1 = () => {
+    const newErrors = {};
+
+    if (!form.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "Invalid email format";
+    }
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors = {};
+
+    if (!form.password || form.password.length < 3) {
+      newErrors.password = "Password must be at least 3 characters";
+    }
+
+    if (form.password !== form.password_confirmation) {
+      newErrors.password_confirmation = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep3 = () => {
+    const newErrors = {};
+
+    if (!form.username || form.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const normalizeErrors = (backendErrors) => {
+    const result = {};
+
+    Object.entries(backendErrors).forEach(([key, value]) => {
+      result[key] = Array.isArray(value) ? value[0] : value;
+    });
+
+    return result;
   };
 
   return (
@@ -123,7 +202,13 @@ export default function RegisterModal({ onClose }) {
             placeholder="Email"
             className={styles.regInputField}
           />
-          <button onClick={() => setStep(2)} className={styles.regButton}>
+          {errors.email && <p className={styles.error}>{errors.email}</p>}
+          <button
+            onClick={() => {
+              if (validateStep1()) setStep(2);
+            }}
+            className={styles.regButton}
+          >
             Next
           </button>
           <div className={styles.modal_footer}>
@@ -152,6 +237,7 @@ export default function RegisterModal({ onClose }) {
             placeholder="Password"
             className={styles.regInputField}
           />
+          {errors.password && <p className={styles.error}>{errors.password}</p>}
 
           <p className={styles.regInputText}>Confirm Password</p>
           <input
@@ -162,11 +248,17 @@ export default function RegisterModal({ onClose }) {
             placeholder="Confirm Password"
             className={styles.regInputField}
           />
+          <p className={styles.error}>{errors.password_confirmation}</p>
 
           <button onClick={() => setStep(1)} className={styles.regButtonBack}>
             <img src="src/assets/icons/weui_arrow-outlined.png" alt="" />
           </button>
-          <button onClick={() => setStep(3)} className={styles.regButton}>
+          <button
+            onClick={() => {
+              if (validateStep2()) setStep(3);
+            }}
+            className={styles.regButton}
+          >
             Next
           </button>
           <div className={styles.modal_footer}>
@@ -194,6 +286,7 @@ export default function RegisterModal({ onClose }) {
             placeholder="Username"
             className={styles.regInputField}
           />
+          {errors.username && <p className={styles.error}>{errors.username}</p>}
 
           <p className={styles.regInputText}>Upload Avatar</p>
           <div
@@ -235,6 +328,8 @@ export default function RegisterModal({ onClose }) {
               </div>
             )}
           </div>
+
+          {errors.general && <p className={styles.error}>{errors.general}</p>}
 
           <button className={styles.regButtonBack} onClick={() => setStep(2)}>
             <img src="src/assets/icons/weui_arrow-outlined.png" alt="" />
