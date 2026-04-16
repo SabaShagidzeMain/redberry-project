@@ -51,66 +51,68 @@ export default function EnrollmentsDrawer({ open, onClose }) {
         </div>
 
         <div className={styles.body}>
-          {loading && <p>Loading...</p>}
+          <div className={styles.bodyInner}>
+            {loading && <p>Loading...</p>}
 
-          {!loading && enrollments.length === 0 && (
-            <p>No enrolled courses yet.</p>
-          )}
+            {!loading && enrollments.length === 0 && (
+              <p>No enrolled courses yet.</p>
+            )}
 
-          {enrollments.map((e) => (
-            <div key={e.id} className={styles.card}>
-              <div className={styles.cardTop}>
-                <div>
-                  <img src={e.course.image} alt="" />
-                </div>
-                <div className={styles.info}>
-                  <div className={styles.infoFirst}>
-                    <p className={styles.instructor}>
-                      {e.course.instructor.name}
-                    </p>
-                    <p>⭐ {e.course.avgRating}</p>
+            {enrollments.map((e) => (
+              <div key={e.id} className={styles.card}>
+                <div className={styles.cardTop}>
+                  <div>
+                    <img src={e.course.image} alt="" />
                   </div>
-                  <h4>{e.course.title}</h4>
-                  <div className={styles.infoList}>
-                    <div className={styles.infoListItem}>
-                      <img src={calendar} alt="" />
-                      <p>{e.schedule.weeklySchedule.label}</p>
+                  <div className={styles.info}>
+                    <div className={styles.infoFirst}>
+                      <p className={styles.instructor}>
+                        {e.course.instructor.name}
+                      </p>
+                      <p>⭐ {e.course.avgRating}</p>
                     </div>
-                    <div className={styles.infoListItem}>
-                      <img src={clock} alt="" />
-                      <p>{e.schedule.timeSlot.label}</p>
+                    <h4>{e.course.title}</h4>
+                    <div className={styles.infoList}>
+                      <div className={styles.infoListItem}>
+                        <img src={calendar} alt="" />
+                        <p>{e.schedule.weeklySchedule.label}</p>
+                      </div>
+                      <div className={styles.infoListItem}>
+                        <img src={clock} alt="" />
+                        <p>{e.schedule.timeSlot.label}</p>
+                      </div>
+                      <div className={styles.infoListItem}>
+                        <img src={user} alt="" />
+                        <p>{e.schedule.sessionType.name}</p>
+                      </div>
+                      <div className={styles.infoListItem}>
+                        {e.schedule.location && (
+                          <>
+                            <img src={location} alt="" />
+                            <p> {e.schedule.location}</p>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className={styles.infoListItem}>
-                      <img src={user} alt="" />
-                      <p>{e.schedule.sessionType.name}</p>
+                  </div>
+                </div>
+                <div className={styles.cardBot}>
+                  <div className={styles.botLeft}>
+                    <p>Progress: {e.progress}%</p>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{ width: `${e.progress}%` }}
+                      />
                     </div>
-                    <div className={styles.infoListItem}>
-                      {e.schedule.location && (
-                        <>
-                          <img src={location} alt="" />
-                          <p> {e.schedule.location}</p>
-                        </>
-                      )}
-                    </div>
+                  </div>
+                  <div className={styles.cardButton} onClick={onClose}>
+                    <Link to={`/course/${e.course.id}`}>View</Link>
                   </div>
                 </div>
               </div>
-              <div className={styles.cardBot}>
-                <div className={styles.botLeft}>
-                  <p>Progress: {e.progress}%</p>
-                  <div className={styles.progressBar}>
-                    <div
-                      className={styles.progressFill}
-                      style={{ width: `${e.progress}%` }}
-                    />
-                  </div>
-                </div>
-                <div className={styles.cardButton} onClick={onClose}>
-                  <Link to={`/course/${e.course.id}`}>View</Link>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </>
