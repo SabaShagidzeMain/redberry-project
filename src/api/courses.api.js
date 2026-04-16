@@ -16,7 +16,12 @@ export const coursesApi = {
 
     return api.get(url);
   },
+
   getCourseById: (id) => {
     return api.get(`/courses/${id}`);
+  },
+
+  getFeaturedCourses: () => {
+    return api.get("/courses/featured");
   },
 };
