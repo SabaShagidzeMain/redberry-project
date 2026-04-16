@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import { coursesApi } from "../../../api/courses.api";
+
 import styles from "./CompletedView.module.css";
 import calendar from "../../../assets/icons/callendar.png";
 import clock from "../../../assets/icons/clock.png";
@@ -15,6 +18,36 @@ export default function CompletedView({ enrollment }) {
   const session = schedule.sessionType?.name || "N/A";
 
   const cleanTime = time?.match(/\((.*?)\)/)?.[1] || time;
+
+  const submitRating = async (value) => {
+    if (hasRated) return;
+
+    try {
+      setRating(value);
+
+      await coursesApi.submitReview(course.id, {
+        rating: value,
+      });
+
+      localStorage.setItem(`rating_${course.id}`, value);
+
+      setHasRated(true);
+    } catch (err) {
+      console.error("RATING ERROR:", err);
+    }
+  };
+
+  useEffect(() => {
+    const savedRating = localStorage.getItem(`rating_${course.id}`);
+
+    if (savedRating) {
+      setRating(Number(savedRating));
+      setHasRated(true);
+    }
+  }, [course.id]);
+
+  const [rating, setRating] = useState(0);
+  const [hasRated, setHasRated] = useState(false);
 
   return (
     <div className={styles.stateBox}>
@@ -57,9 +90,25 @@ export default function CompletedView({ enrollment }) {
       </div>
 
       <div className={styles.ratingBox}>
-        <p className={styles.rateText}>Rate your experience</p>
+        <p className={styles.rateText}>
+          {hasRated ? "Thank you for your feedback" : "Rate your experience"}
+        </p>
+
         <div className={styles.stars}>
-          <p>⭐⭐⭐⭐⭐</p>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              onClick={() => !hasRated && submitRating(star)}
+              style={{
+                cursor: hasRated ? "default" : "pointer",
+                fontSize: "24px",
+                color: star <= rating ? "#FFD700" : "#ccc",
+                opacity: hasRated ? 0.8 : 1,
+              }}
+            >
+              ★
+            </span>
+          ))}
         </div>
       </div>
     </div>
