@@ -5,6 +5,7 @@ import { enrollmentApi } from "../../api/enrollments.api";
 export default function EnrollmentsDrawer({ open, onClose }) {
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(false);
+  const totalEnrollments = enrollments.length;
 
   useEffect(() => {
     if (!open) return;
@@ -14,10 +15,10 @@ export default function EnrollmentsDrawer({ open, onClose }) {
         setLoading(true);
         const res = await enrollmentApi.getEnrollments();
 
-        console.log("📦 ENROLLMENTS:", res.data);
+        console.log("ENROLLMENTS:", res.data);
         setEnrollments(res.data || []);
       } catch (err) {
-        console.error("❌ ENROLLMENTS ERROR:", err);
+        console.error("ENROLLMENTS ERROR:", err);
       } finally {
         setLoading(false);
       }
@@ -38,7 +39,10 @@ export default function EnrollmentsDrawer({ open, onClose }) {
       <div className={`${styles.drawer} ${open ? styles.open : ""}`}>
         <div className={styles.header}>
           <h3>Enrolled Courses</h3>
-          <button onClick={onClose}>✕</button>
+          <p>
+            Total Enrollments:{" "}
+            <span className={styles.count}>{enrollments.length}</span>
+          </p>
         </div>
 
         <div className={styles.body}>

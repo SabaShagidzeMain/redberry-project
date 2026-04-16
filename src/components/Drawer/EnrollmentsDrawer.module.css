@@ -33,8 +33,19 @@
 .header {
   display: flex;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid #eee;
+  align-items: flex-end;
+  padding: 42px 57px;
+  color: #0a0a0a;
+}
+
+.header h3 {
+  font-size: 40px;
+}
+
+.header p {
+  margin: 0;
+  font-size: 16px;
+  color: #0a0a0a;
 }
 
 .body {
