@@ -16,6 +16,8 @@ export default function LoginModal({ onClose }) {
 
       console.log("Logged in:", res.data.user);
 
+      window.location.reload();
+
       onClose();
     } catch (err) {
       console.error(err.message);

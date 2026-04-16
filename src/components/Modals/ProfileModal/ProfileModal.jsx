@@ -99,6 +99,7 @@ export default function ProfileModal({ onClose }) {
       const updatedUser = res.data?.data || res.data;
 
       login(token, updatedUser);
+      window.location.reload();
       onClose();
     } catch (err) {
       console.error("PROFILE UPDATE ERROR:", err);
@@ -108,6 +109,7 @@ export default function ProfileModal({ onClose }) {
   const handleLogout = () => {
     logout();
     onClose();
+    window.location.reload();
   };
 
   return (

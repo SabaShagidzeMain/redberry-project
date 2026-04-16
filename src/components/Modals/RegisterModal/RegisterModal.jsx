@@ -74,6 +74,7 @@ export default function RegisterModal({ onClose }) {
       const res = await authApi.register(formData);
 
       setToken(res.data.token);
+      window.location.reload();
 
       onClose();
     } catch (err) {
