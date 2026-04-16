@@ -2,10 +2,11 @@
   margin: 70px 177px;
 }
 
-.breadcrumbs {
+.breadcrumbs a {
   font-size: 18px;
   color: #666666;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .wayHome {
@@ -51,6 +52,10 @@
   height: 24px;
 }
 
+p {
+  margin: 0;
+}
+
 .infoWrapper p {
   margin: 0;
   font-size: 14px;
@@ -91,189 +96,7 @@
 
 .metaRight {
   display: flex;
-  gap: 12px;
-  gap: 16px;
   justify-content: center;
   align-items: center;
-}
-
-.metaRight p {
-  margin: 0;
-}
-
-.instructor {
-  width: 30px;
-  height: 30px;
-  object-fit: cover;
-}
-
-.tag p {
-  margin: 0;
-}
-
-.description {
-  color: #8a8a8a;
-}
-
-.description h3 {
-  font-size: 20px;
-}
-
-.description p {
-  font-size: 16px;
-}
-
-.detailsRight {
-  margin-top: 65px;
-  width: 530px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.stepWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  gap: 18.5px;
-}
-
-.stepTop {
-  cursor: pointer;
-}
-
-.stepTop h3 {
-  font-size: 24px;
-  color: #130e67;
-  font-weight: 500;
-}
-
-.options {
-  display: flex;
-  gap: 12px;
-  width: 100%;
-}
-
-.option {
-  height: 91px;
-  width: 124px;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid #d1d1d1;
-  cursor: pointer;
-  font-size: 16px;
-  color: #292929;
-  font-weight: 600;
-}
-
-.stepBot {
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition: all 0.35s ease;
-}
-
-.activeStep .stepBot {
-  max-height: 500px;
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.activeStep .stepTop h3 {
-  color: #130e67;
-  transition: 0.2s ease;
-}
-
-/* inactive feel */
-.stepTop h3 {
-  transition: 0.2s ease;
-  cursor: pointer;
-}
-
-.stepTop h3:hover {
-  opacity: 0.8;
-}
-
-.priceBox {
-  display: flex;
-  flex-direction: column;
-  padding: 40px;
-  background-color: #fff;
-  border-radius: 12px;
-}
-
-.priceContainer {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.priceWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.enrollBtn {
-  height: 63px;
-  border-radius: 12px;
-  background-color: #eeedfc;
-  color: #b7b3f4;
-  border: none;
-  font-size: 20px;
-  line-height: 24px;
-  cursor: pointer;
-  margin-top: 32px;
-}
-
-.priceWrapper h3 {
-  font-size: 20px;
-}
-
-.priceWrapper p {
-  font-size: 16px;
-}
-
-.priceLeft {
-  color: #8a8a8a;
-}
-
-.completeBox {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.completeBox h3 {
-  font-size: 16px;
-  color: #292929;
-}
-
-.completeBox p {
-  font-size: 12px;
-  color: #8a8a8a;
-}
-
-.authHeading {
-  display: flex;
-  gap: 6px;
-}
-
-.authButton {
-  border: 1px solid #b7b3f4;
-  background-color: #eeedfc;
-  color: #281ed2;
-  width: 91px;
-  height: 46px;
-  border-radius: 8px;
+  gap: 16px;
 }

@@ -1,7 +1,7 @@
 import styles from "./Navbar.module.css";
-import LoginModal from "../Auth/Login/LoginModal";
-import RegisterModal from "../Auth/Register/RegisterModal";
-import ProfileModal from "../Auth/Profile/ProfileModal";
+import LoginModal from "../Modals/LoginModal/LoginModal";
+import RegisterModal from "../Modals/RegisterModal/RegisterModal";
+import ProfileModal from "../Modals/ProfileModal/ProfileModal";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
