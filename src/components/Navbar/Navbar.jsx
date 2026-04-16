@@ -5,6 +5,9 @@ import ProfileModal from "../Auth/Profile/ProfileModal";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
+import sparkles from "../../assets/icons/sparkles.png";
+import book from "../../assets/icons/book.png";
 
 export default function Navbar() {
   const [showLogin, setShowLogin] = useState(false);
@@ -18,21 +21,21 @@ export default function Navbar() {
       <div className={styles.inner_nav}>
         <div className={styles.left}>
           <Link to="/">
-            <img src="src/assets/Logo.png" alt="" className={styles.logo} />
+            <img src={logo} alt="" className={styles.logo} />
           </Link>
         </div>
 
         <div className={styles.right}>
           <div>
             <Link to="/browse" className={styles.nav_tag}>
-              <img src="src/assets/icons/sparkles.png" alt="" />
+              <img src={sparkles} alt="" />
               <p>Browse Courses</p>
             </Link>
           </div>
 
           {isAuthenticated && (
             <div className={styles.nav_tag}>
-              <img src="src/assets/icons/book.png" alt="" />
+              <img src={book} alt="" />
               <p>Enrolled Courses</p>
             </div>
           )}
