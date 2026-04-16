@@ -2,25 +2,13 @@ import styles from "./Browse.module.css";
 import { Link } from "react-router-dom";
 import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 import useBrowseData from "../../hooks/useBrowseData";
-import { useState, useRef, useEffect } from "react";
 import SortDropdown from "../../components/SortDropDown/SortDropDown";
-
-import devIcon from "../../assets/categories/development.png";
-import designIcon from "../../assets/categories/design.png";
-import businessIcon from "../../assets/categories/business.png";
-import dataIcon from "../../assets/categories/datasci.png";
-import marketingIcon from "../../assets/categories/marketing.png";
+import FiltersPanel from "../../components/FiltersPanel/FiltersPanel";
+import { sortOptions } from "../../utils/sortOptions";
+import { categoryIcons } from "../../utils/categoryIcons";
 
 export default function Browse() {
   const data = useBrowseData();
-
-  const categoryIcons = {
-    development: devIcon,
-    design: designIcon,
-    business: businessIcon,
-    "data-science": dataIcon,
-    marketing: marketingIcon,
-  };
 
   const activeFilterCount =
     data.selectedCategories.length +
@@ -34,17 +22,6 @@ export default function Browse() {
         )
       : data.topics;
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowSort(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
     <div className={styles.page}>
       {/* BREADCRUMBS */}
@@ -57,99 +34,21 @@ export default function Browse() {
 
       <div className={styles.toolbar}>
         {/* LEFT FILTERS */}
-        <div className={styles.filters}>
-          <div className={styles.filtersHeader}>
-            <h4>Filters</h4>
-            <button onClick={data.clearFilters}>Clear all filters</button>
-          </div>
-
-          {/* CATEGORIES */}
-          <div className={styles.tagContainer}>
-            <div className={styles.tagHeader}>
-              <p>Categories</p>
-            </div>
-
-            <div className={styles.tagWrapper}>
-              {data.categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className={`${styles.tag} ${
-                    data.selectedCategories.includes(cat.id)
-                      ? styles.activeTag
-                      : ""
-                  }`}
-                  onClick={() => data.toggleCategory(cat.id)}
-                >
-                  <img
-                    src={categoryIcons[cat.icon] || devIcon}
-                    alt={cat.name}
-                  />
-                  <p>{cat.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* TOPICS */}
-          <div className={styles.tagContainer}>
-            <div className={styles.tagHeader}>
-              <p>Topics</p>
-            </div>
-
-            <div className={styles.tagWrapper}>
-              {visibleTopics.map((topic) => (
-                <div
-                  key={topic.id}
-                  className={`${styles.tag} ${
-                    data.selectedTopics.includes(topic.id)
-                      ? styles.activeTag
-                      : ""
-                  }`}
-                  onClick={() => data.toggleTopic(topic.id)}
-                >
-                  <p>{topic.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* INSTRUCTORS */}
-          <div className={styles.tagContainer}>
-            <div className={styles.tagHeader}>
-              <p>Instructors</p>
-            </div>
-
-            <div className={styles.instructorWrapper}>
-              {data.instructors.map((ins) => (
-                <div
-                  key={ins.id}
-                  className={`${styles.tag} ${
-                    data.selectedInstructors.includes(ins.id)
-                      ? styles.activeTag
-                      : ""
-                  }`}
-                  onClick={() => data.toggleInstructor(ins.id)}
-                >
-                  <img
-                    className={styles.instructor}
-                    src={ins.avatar}
-                    alt={ins.name}
-                  />
-                  <p>{ins.name}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.activeFilters}>
-            <span></span>
-            <p>
-              {activeFilterCount === 0
-                ? "0 Filters Active"
-                : `${activeFilterCount} Filters Active`}
-            </p>
-          </div>
-        </div>
+        <FiltersPanel
+          categories={data.categories}
+          topics={data.topics}
+          instructors={data.instructors}
+          selectedCategories={data.selectedCategories}
+          selectedTopics={data.selectedTopics}
+          selectedInstructors={data.selectedInstructors}
+          toggleCategory={data.toggleCategory}
+          toggleTopic={data.toggleTopic}
+          toggleInstructor={data.toggleInstructor}
+          clearFilters={data.clearFilters}
+          activeFilterCount={activeFilterCount}
+          visibleTopics={visibleTopics}
+          categoryIcons={categoryIcons}
+        />
 
         {/* RIGHT SIDE */}
         <div className={styles.cardPanel}>
@@ -170,13 +69,7 @@ export default function Browse() {
               <SortDropdown
                 sort={data.sort}
                 setSort={data.setSort}
-                options={[
-                  "Newest first",
-                  "Price: Low to high",
-                  "Price: High to low",
-                  "Most popular",
-                  "Title: A-Z",
-                ]}
+                options={sortOptions}
               />
             </div>
 

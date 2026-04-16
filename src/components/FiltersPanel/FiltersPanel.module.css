@@ -1,0 +1,115 @@
+.toolbar {
+  display: flex;
+  margin-top: 34px;
+  gap: 90px;
+}
+
+.filters {
+  width: 20%;
+}
+
+.filtersHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  height: 62px;
+}
+
+.filtersHeader h4 {
+  margin: 0;
+  font-size: 40px;
+  color: #0a0a0a;
+}
+
+.filtersHeader button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 18px;
+  color: #8a8a8a;
+  cursor: pointer;
+}
+
+.tagContainer {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 56px;
+}
+
+.tagContainer p {
+  margin: 0;
+}
+
+.tagHeader {
+  margin-bottom: 24px;
+}
+
+.tagHeader p {
+  font-size: 18px;
+  color: #666666;
+  font-weight: 600;
+}
+
+.tagWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 7.5px 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.instructorWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tag {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.activeFilters {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.activeFilters span {
+  width: 100%;
+  height: 1px;
+  background: #666666;
+}
+
+.activeFilters p {
+  color: #8a8a8a;
+  font-size: 14;
+  margin: 0;
+}
+
+.instructor {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+}
+
+.tag img {
+  width: 24px;
+  height: 24px;
+}
+
+.activeTag {
+  border: 1px solid #4f46e5;
+  background: rgba(79, 70, 229, 0.08);
+}
