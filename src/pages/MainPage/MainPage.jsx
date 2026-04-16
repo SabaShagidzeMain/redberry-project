@@ -261,6 +261,25 @@ export default function MainPage() {
           {loadingFeatured ? <p>Loading...</p> : courses.map(renderCard)}
         </div>
       </div>
+
+      {!isLoggedIn && (
+        <div
+          className={styles.cardWrapper}
+          style={{ backgroundImage: `url(${blur})`, backgroundSize: `cover` }}
+        >
+          <div className={styles.blurWrapper}>
+            <div className={styles.blurCard}>
+              <div className={styles.lockWrapper}>
+                <img src={lock} alt="" />
+              </div>
+              <div className={styles.blurText}>
+                <p>Sign in to track your learning progress</p>
+                <button>Sign in</button>
+              </div>
+            </div>{" "}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

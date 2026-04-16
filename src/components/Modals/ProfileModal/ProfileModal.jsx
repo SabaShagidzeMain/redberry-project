@@ -4,6 +4,8 @@ import styles from "./ProfileModal.module.css";
 import { useAuth } from "../../../context/AuthContext";
 import { authApi } from "../../../api/auth.api";
 
+import upload from "../../../assets/icons/upload.png";
+
 export default function ProfileModal({ onClose }) {
   const { user, login, token, logout } = useAuth();
 
@@ -182,10 +184,7 @@ export default function ProfileModal({ onClose }) {
               </div>
             ) : (
               <>
-                <img
-                  src="src/assets/icons/upload.png"
-                  className={styles.regUploadIcon}
-                />
+                <img src={upload} className={styles.regUploadIcon} />
                 <p>
                   Drag & drop or{" "}
                   <span onClick={handleClickUpload}>upload avatar</span>
