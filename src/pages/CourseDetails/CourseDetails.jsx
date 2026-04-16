@@ -5,6 +5,7 @@ import { scheduleApi } from "../../api/schedule.api";
 import styles from "./CourseDetails.module.css";
 import { Link } from "react-router-dom";
 import { authApi } from "../../api/auth.api";
+import { enrollmentApi } from "../../api/enrollments.api";
 
 import calendar from "../../assets/icons/callendar.png";
 import clock from "../../assets/icons/clock.png";
@@ -408,7 +409,40 @@ export default function CourseDetails() {
                 </div>
               </div>
             </div>
-            <button disabled={!canEnroll} className={styles.enrollBtn}>
+            <button
+              className={styles.enrollBtn}
+              // disabled={!selectedSession}
+              onClick={async () => {
+                try {
+                  console.log("ENROLL CLICKED");
+
+                  if (!selectedWeek || !selectedTime || !selectedSession) {
+                    console.warn("Missing selection:", {
+                      selectedWeek,
+                      selectedTime,
+                      selectedSession,
+                    });
+                    return;
+                  }
+
+                  const payload = {
+                    courseId: Number(id),
+                    weeklyScheduleId: selectedWeek.id,
+                    timeSlotId: selectedTime.id,
+                    courseScheduleId: selectedSession.courseScheduleId,
+                    force: false,
+                  };
+
+                  console.log("📦 PAYLOAD:", payload);
+
+                  const res = await enrollmentApi.createEnrollment(payload);
+
+                  console.log("✅ ENROLL SUCCESS:", res.data);
+                } catch (err) {
+                  console.error("❌ ENROLL ERROR:", err);
+                }
+              }}
+            >
               Enroll Now
             </button>
           </div>
