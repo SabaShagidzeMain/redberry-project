@@ -4,6 +4,7 @@ import { coursesApi } from "../../api/courses.api";
 import { scheduleApi } from "../../api/schedule.api";
 import styles from "./CourseDetails.module.css";
 import { Link } from "react-router-dom";
+import { authApi } from "../../api/auth.api";
 
 import calendar from "../../assets/icons/callendar.png";
 import clock from "../../assets/icons/clock.png";
@@ -13,6 +14,7 @@ import designIcon from "../../assets/categories/design.png";
 import businessIcon from "../../assets/categories/business.png";
 import dataIcon from "../../assets/categories/datasci.png";
 import marketingIcon from "../../assets/categories/marketing.png";
+import warning from "../../assets/icons/warning.png";
 
 export default function CourseDetails() {
   const { id } = useParams();
@@ -29,6 +31,30 @@ export default function CourseDetails() {
   const [selectedSession, setSelectedSession] = useState(null);
 
   const [openStep, setOpenStep] = useState("week");
+
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await authApi.me();
+        console.log("🔥 USER:", res.data);
+        setUser(res.data);
+      } catch (err) {
+        console.log("❌ NOT LOGGED IN");
+        setUser(null);
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const isLoggedIn = !!user;
+  const isProfileComplete = user?.profileComplete;
+  const canEnroll = isLoggedIn && isProfileComplete;
 
   const categoryIcons = {
     development: devIcon,
@@ -382,8 +408,47 @@ export default function CourseDetails() {
                 </div>
               </div>
             </div>
-            <button className={styles.enrollBtn}>Enroll Now</button>
+            <button disabled={!canEnroll} className={styles.enrollBtn}>
+              Enroll Now
+            </button>
           </div>
+
+          {/* COMPLETE */}
+          {!canEnroll && (
+            <div className={styles.completeBox}>
+              <div>
+                <div className={styles.authHeading}>
+                  <img src={warning} alt="" />
+                  <h3>
+                    {!isLoggedIn
+                      ? "Authentication Required"
+                      : "Profile Incomplete"}
+                  </h3>
+                </div>
+
+                <p>
+                  {!isLoggedIn
+                    ? "You need to sign in before enrolling in this course."
+                    : "Please complete your profile before enrolling in this course."}
+                </p>
+              </div>
+
+              <div>
+                <button
+                  className={styles.authButton}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      window.location.href = "/login";
+                    } else {
+                      window.location.href = "/profile";
+                    }
+                  }}
+                >
+                  {!isLoggedIn ? "Sign In" : "Complete Profile"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

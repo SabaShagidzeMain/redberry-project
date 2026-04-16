@@ -124,7 +124,7 @@
 }
 
 .detailsRight {
-  margin-top: 100px;
+  margin-top: 65px;
   width: 530px;
   display: flex;
   flex-direction: column;
@@ -243,4 +243,37 @@
 
 .priceLeft {
   color: #8a8a8a;
+}
+
+.completeBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.completeBox h3 {
+  font-size: 16px;
+  color: #292929;
+}
+
+.completeBox p {
+  font-size: 12px;
+  color: #8a8a8a;
+}
+
+.authHeading {
+  display: flex;
+  gap: 6px;
+}
+
+.authButton {
+  border: 1px solid #b7b3f4;
+  background-color: #eeedfc;
+  color: #281ed2;
+  width: 91px;
+  height: 46px;
+  border-radius: 8px;
 }
