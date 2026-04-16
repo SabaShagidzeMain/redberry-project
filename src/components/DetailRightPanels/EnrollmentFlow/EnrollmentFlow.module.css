@@ -184,4 +184,16 @@
   width: 91px;
   height: 46px;
   border-radius: 8px;
+  cursor: pointer;
+}
+
+.completeWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.headingWrapper {
+  display: flex;
+  gap: 6px;
 }

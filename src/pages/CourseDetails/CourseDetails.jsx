@@ -71,8 +71,6 @@ export default function CourseDetails() {
       const raw = res.data?.data ?? res.data ?? [];
       const list = Array.isArray(raw) ? raw : [];
 
-      console.log("ALL ENROLLMENTS:", list);
-
       setAllEnrollments(list);
 
       const found = list.find(
@@ -195,14 +193,6 @@ export default function CourseDetails() {
   // ---------------- UI ----------------
   if (loading) return <p>Loading...</p>;
   if (!course) return <p>Course not found</p>;
-
-  console.log("🔥 EnrollmentFlow MOUNTED");
-  console.log("📦 EnrollmentFlow PROPS:", {
-    selectedWeek,
-    selectedTime,
-    selectedSession,
-    allEnrollments,
-  });
 
   return (
     <div className={styles.page}>

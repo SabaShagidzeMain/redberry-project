@@ -2,6 +2,10 @@ import styles from "./EnrollmentFlow.module.css";
 import { useState } from "react";
 
 import ConfirmModal from "../../Modals/ConfirmModal/ConfirmModal";
+import LoginModal from "../../Modals/LoginModal/LoginModal";
+import ProfileModal from "../../Modals/ProfileModal/ProfileModal";
+
+import warning from "../../../assets/icons/warning.png";
 
 export default function CourseDetailsRight({
   openStep,
@@ -28,45 +32,51 @@ export default function CourseDetailsRight({
   enrollmentApi,
   allEnrollments = [],
   onEnroll,
+
+  isLoggedIn,
+  isProfileComplete,
 }) {
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [conflictEnrollment, setConflictEnrollment] = useState(null);
 
-  const debug = (...args) => console.log("🧠 [EnrollmentFlow]", ...args);
+  // ✅ NEW: modal control states
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // -------------------------
+  // ACCESS CHECK
+  // -------------------------
+  const handleAccessClick = () => {
+    if (!isLoggedIn) {
+      debug("🔐 opening login modal");
+      setShowLoginModal(true);
+      return;
+    }
+
+    if (!isProfileComplete) {
+      debug("👤 opening profile modal");
+      setShowProfileModal(true);
+      return;
+    }
+
+    handleEnroll(false);
+  };
 
   // -------------------------
   // CONFLICT DETECTION
   // -------------------------
   const findConflict = () => {
-    debug("Checking conflict...");
+    if (!selectedWeek || !selectedTime) return null;
 
-    if (!selectedWeek || !selectedTime) {
-      debug("Missing selection → no conflict check", {
-        selectedWeek,
-        selectedTime,
-      });
-      return null;
-    }
+    return allEnrollments.find((e) => {
+      const weekMatch =
+        Number(e?.schedule?.weeklySchedule?.id) === Number(selectedWeek?.id);
 
-    const conflict = allEnrollments.find((e) => {
-      const weekId = e?.schedule?.weeklySchedule?.id;
-      const timeId = e?.schedule?.timeSlot?.id;
+      const timeMatch =
+        Number(e?.schedule?.timeSlot?.id) === Number(selectedTime?.id);
 
-      const weekMatch = Number(weekId) === Number(selectedWeek?.id);
-
-      const timeMatch = Number(timeId) === Number(selectedTime?.id);
-
-      const isConflict = weekMatch && timeMatch;
-
-      if (isConflict) {
-        debug("⚠️ Conflict found:", e?.course?.title);
-      }
-
-      return isConflict;
+      return weekMatch && timeMatch;
     });
-
-    debug("Conflict result:", conflict);
-    return conflict || null;
   };
 
   // -------------------------
@@ -74,24 +84,11 @@ export default function CourseDetailsRight({
   // -------------------------
   const handleEnroll = async (force = false) => {
     try {
-      debug("Enroll clicked → force:", force);
-
       const conflict = findConflict();
 
       if (conflict && !force) {
-        debug("⛔ Blocking enroll → opening modal");
-
         setConflictEnrollment(conflict);
         setShowConflictModal(true);
-        return;
-      }
-
-      if (!selectedWeek || !selectedTime || !selectedSession) {
-        debug("❌ Missing selections:", {
-          selectedWeek,
-          selectedTime,
-          selectedSession,
-        });
         return;
       }
 
@@ -103,15 +100,11 @@ export default function CourseDetailsRight({
         force,
       };
 
-      debug("📦 Sending payload:", payload);
-
       const res = await enrollmentApi.createEnrollment(payload);
-
-      debug("✅ Enrollment success:", res?.data);
 
       await onEnroll?.();
     } catch (err) {
-      console.error("❌ ENROLL ERROR:", err);
+      console.error("ENROLL ERROR:", err);
     }
   };
 
@@ -236,13 +229,40 @@ export default function CourseDetailsRight({
           </div>
         </div>
 
-        <button
-          className={styles.enrollBtn}
-          onClick={() => handleEnroll(false)}
-        >
+        <button className={styles.enrollBtn} onClick={handleAccessClick}>
           Enroll Now
         </button>
       </div>
+      {!isLoggedIn || !isProfileComplete ? (
+        <div className={styles.completeBox}>
+          <div className={styles.completeWrapper}>
+            <div className={styles.headingWrapper}>
+              <img src={warning} alt="" />
+              {!isLoggedIn || !isProfileComplete ? (
+                <h3 className={styles.authHeading}>
+                  {!isLoggedIn ? "Sign In." : "Complete Your Profile."}
+                </h3>
+              ) : null}
+            </div>
+            {!isLoggedIn || !isProfileComplete ? (
+              <p className={styles.profileWarning}>
+                {!isLoggedIn
+                  ? "You need to sign in to enroll in this course."
+                  : "Please complete your profile before enrolling."}
+              </p>
+            ) : null}
+          </div>
+          <div>
+            {!isLoggedIn || !isProfileComplete ? (
+              <button className={styles.authButton} onClick={handleAccessClick}>
+                {!isLoggedIn ? "Sign In" : "Complete"}
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {/* CONFIRM MODAL */}
       {showConflictModal && conflictEnrollment && (
         <ConfirmModal
           title="Schedule Conflict"
@@ -250,8 +270,6 @@ export default function CourseDetailsRight({
             <>
               You are already enrolled in{" "}
               <b>{conflictEnrollment.course?.title}</b>
-              <br />
-              with the same schedule:
               <br />
               {conflictEnrollment.schedule?.weeklySchedule?.label} at{" "}
               {conflictEnrollment.schedule?.timeSlot?.label}
@@ -265,6 +283,16 @@ export default function CourseDetailsRight({
             handleEnroll(true);
           }}
         />
+      )}
+
+      {/* 🔥 LOGIN MODAL */}
+      {showLoginModal && (
+        <LoginModal onClose={() => setShowLoginModal(false)} />
+      )}
+
+      {/* 🔥 PROFILE MODAL */}
+      {showProfileModal && (
+        <ProfileModal onClose={() => setShowProfileModal(false)} />
       )}
     </div>
   );
