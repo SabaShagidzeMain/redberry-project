@@ -3,29 +3,34 @@ import Modal from "../../Modal/Modal";
 import { authApi } from "../../../api/auth.api";
 import styles from "./LoginModal.module.css";
 import { useAuth } from "../../../context/AuthContext";
+import LoadingScreen from "../../LoadingScreen/LoadingScreen";
 
 export default function LoginModal({ onClose }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const handleLogin = async () => {
+    setLoading(true);
+
     try {
       const res = await authApi.login({ email, password });
 
       login(res.data.token, res.data.user);
 
-      console.log("Logged in:", res.data.user);
-
-      window.location.reload();
-
       onClose();
+
+      window.location.reload(); // optional (you can remove later)
     } catch (err) {
-      console.error(err.message);
+      console.error(err?.response?.data || err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Modal className={styles.modal} onClose={onClose}>
+      {/* {loading && <LoadingScreen text="Logging you in..." />} */}
       <div className={styles.modal_inner}>
         <div className={styles.modal_text}>
           <h2>Welcome Back</h2>

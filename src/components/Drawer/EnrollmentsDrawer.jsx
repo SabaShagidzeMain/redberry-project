@@ -6,6 +6,7 @@ import clock from "../../assets/icons/clock.png";
 import user from "../../assets/icons/person.png";
 import location from "../../assets/icons/location.png";
 import { Link } from "react-router-dom";
+import LoadingScreen from "../LoadingScreen/LoadingScreen";
 
 export default function EnrollmentsDrawer({ open, onClose }) {
   const [enrollments, setEnrollments] = useState([]);
@@ -52,7 +53,7 @@ export default function EnrollmentsDrawer({ open, onClose }) {
 
         <div className={styles.body}>
           <div className={styles.bodyInner}>
-            {loading && <p>Loading...</p>}
+            {loading && <LoadingScreen text="Loading courses..." />}
 
             {!loading && enrollments.length === 0 && (
               <p>No enrolled courses yet.</p>

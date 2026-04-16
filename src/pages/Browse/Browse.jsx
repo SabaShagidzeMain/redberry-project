@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { coursesApi } from "../../api/courses.api";
 import { browseApi } from "../../api/browse.api";
+import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 
 import devIcon from "../../assets/categories/development.png";
 import designIcon from "../../assets/categories/design.png";
@@ -342,7 +343,7 @@ export default function Browse() {
             {/* COURSES GRID */}
             <div className={styles.grid}>
               {loading ? (
-                <p>Loading...</p>
+                <LoadingScreen text="Loading courses..." />
               ) : (
                 courses.map((course) => (
                   <Link to={`/course/${course.id}`} className={styles.cardLink}>

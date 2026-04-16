@@ -3,11 +3,13 @@ import Modal from "../../Modal/Modal";
 import styles from "./ProfileModal.module.css";
 import { useAuth } from "../../../context/AuthContext";
 import { authApi } from "../../../api/auth.api";
+import LoadingScreen from "../../LoadingScreen/LoadingScreen";
 
 import upload from "../../../assets/icons/upload.png";
 
 export default function ProfileModal({ onClose }) {
   const { user, login, token, logout } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const [preview, setPreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -74,6 +76,8 @@ export default function ProfileModal({ onClose }) {
   };
 
   const handleSave = async () => {
+    setLoading(true);
+
     try {
       let res;
 
@@ -99,21 +103,29 @@ export default function ProfileModal({ onClose }) {
       const updatedUser = res.data?.data || res.data;
 
       login(token, updatedUser);
-      window.location.reload();
+
       onClose();
+      window.location.reload();
     } catch (err) {
       console.error("PROFILE UPDATE ERROR:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    logout();
-    onClose();
-    window.location.reload();
+    setLoading(true);
+
+    setTimeout(() => {
+      logout();
+      onClose();
+      window.location.reload();
+    }, 400);
   };
 
   return (
     <Modal onClose={onClose}>
+      {/* {loading && <LoadingScreen text="Updating profile..." />} */}
       <div className={styles.profileModal}>
         <div className={styles.heading}>
           <h2>Profile</h2>
