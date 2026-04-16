@@ -5,7 +5,7 @@ import desktop from "../../../assets/icons/desktop.png";
 import location from "../../../assets/icons/location.png";
 import person from "../../../assets/icons/person.png";
 
-export default function InProgressView({ enrollment }) {
+export default function InProgressView({ enrollment, onComplete }) {
   if (!enrollment) {
     return <p>Loading progress...</p>;
   }
@@ -54,7 +54,9 @@ export default function InProgressView({ enrollment }) {
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.primaryBtn}>Complete Course</button>
+        <button className={styles.primaryBtn} onClick={onComplete}>
+          Complete Course
+        </button>
       </div>
     </div>
   );

@@ -1,0 +1,115 @@
+.stateBox {
+  width: 530px;
+}
+
+.enrolledHeader {
+  background-color: #e0f0e0;
+  color: #1dc31d;
+  padding: 16px;
+  border-radius: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 107px;
+}
+
+.enrolledHeader h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.infoBox {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.infoBoxItem {
+  display: flex;
+  gap: 12px;
+}
+
+.infoBoxItem img {
+  width: 24px;
+  height: 24px;
+}
+
+.infoBoxItem p {
+  font-size: 20px;
+  color: #525252;
+}
+
+.progressSection {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 53px;
+  margin-bottom: 40px;
+  gap: 12px;
+}
+
+.progressSection p {
+  color: #666666;
+  font-size: 20px;
+  line-height: 24px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 24px;
+  background: #dddbfa;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.progressFill {
+  height: 100%;
+  width: 100%;
+  background: #4f46e5;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.primaryBtn {
+  height: 58px;
+  width: 100%;
+  border-radius: 8px;
+  background-color: #4f46e5;
+  color: #fff;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+.ratingBox {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: 172px;
+  margin-top: 39px;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.rateText {
+  color: #525252;
+  font-size: 16px;
+}
+
+.stars {
+  display: flex;
+  gap: 16px;
+  font-size: 50px;
+  cursor: pointer;
+}

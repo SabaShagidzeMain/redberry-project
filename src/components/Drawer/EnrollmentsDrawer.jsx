@@ -46,7 +46,7 @@ export default function EnrollmentsDrawer({ open, onClose }) {
           <h3>Enrolled Courses</h3>
           <p>
             Total Enrollments:
-            <span className={styles.count}>{enrollments.length}</span>
+            <span className={styles.count}> {enrollments.length}</span>
           </p>
         </div>
 

@@ -1,11 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+
 import { coursesApi } from "../../api/courses.api";
 import { scheduleApi } from "../../api/schedule.api";
-import styles from "./CourseDetails.module.css";
-import { Link } from "react-router-dom";
 import { authApi } from "../../api/auth.api";
 import { enrollmentApi } from "../../api/enrollments.api";
+
+import styles from "./CourseDetails.module.css";
 
 import calendar from "../../assets/icons/callendar.png";
 import clock from "../../assets/icons/clock.png";
@@ -22,7 +23,9 @@ import EnrollmentFlow from "../../components/DetailRightPanels/EnrollmentFlow/En
 
 export default function CourseDetails() {
   const { id } = useParams();
+  const courseId = Number(id);
 
+  // ---------------- STATE ----------------
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,8 +40,11 @@ export default function CourseDetails() {
   const [openStep, setOpenStep] = useState("week");
 
   const [user, setUser] = useState(null);
-
   const [enrollment, setEnrollment] = useState(null);
+
+  // ---------------- DERIVED ----------------
+  const isLoggedIn = !!user;
+  const isProfileComplete = user?.profileComplete;
 
   const courseState = (() => {
     if (!enrollment) return "NOT_ENROLLED";
@@ -47,37 +53,29 @@ export default function CourseDetails() {
     return "NOT_ENROLLED";
   })();
 
+  const reviews = course?.reviews ?? [];
+  const avgRating =
+    reviews.length > 0
+      ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
+      : null;
+
+  const sessionModifier = selectedSession?.priceModifier ?? 0;
+  const totalPrice = course ? course.basePrice + sessionModifier : 0;
+
+  // ---------------- FETCH ----------------
   const fetchEnrollment = async () => {
     try {
       const res = await enrollmentApi.getEnrollments();
-
-      console.log("🔥 RAW RESPONSE:", res);
-
       const raw = res.data?.data ?? res.data ?? [];
       const list = Array.isArray(raw) ? raw : [];
 
-      const courseId = Number(id);
-
-      console.log("🔥 CURRENT COURSE ID:", courseId);
-
-      list.forEach((e, i) => {
-        console.log(`👉 ENROLLMENT[${i}]`, e);
-      });
-
-      const found = list.find((e) => {
-        return (
-          e.course?.id === courseId ||
-          e.courseId === courseId ||
-          Number(e.course?.id) === courseId ||
-          Number(e.courseId) === courseId
-        );
-      });
-
-      console.log("🎯 MATCHED ENROLLMENT:", found);
+      const found = list.find(
+        (e) =>
+          Number(e.course?.id) === courseId || Number(e.courseId) === courseId,
+      );
 
       setEnrollment(found || null);
-    } catch (err) {
-      console.error("❌ ENROLLMENT ERROR:", err);
+    } catch {
       setEnrollment(null);
     }
   };
@@ -87,64 +85,28 @@ export default function CourseDetails() {
   }, [id]);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await authApi.me();
-        setUser(res.data);
-      } catch {
-        setUser(null);
-      }
-    };
-
-    fetchUser();
+    authApi
+      .me()
+      .then((res) => setUser(res.data))
+      .catch(() => setUser(null));
   }, []);
 
-  const isLoggedIn = !!user;
-  const isProfileComplete = user?.profileComplete;
-
-  const categoryIcons = {
-    development: devIcon,
-    design: designIcon,
-    business: businessIcon,
-    "data-science": dataIcon,
-    marketing: marketingIcon,
-  };
-
-  const reviews = Array.isArray(course?.reviews) ? course.reviews : [];
-
-  const avgRating =
-    reviews.length > 0
-      ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
-      : null;
-
   useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const res = await coursesApi.getCourseById(id);
-        setCourse(res.data);
-      } catch {
-        setCourse(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCourse();
+    coursesApi
+      .getCourseById(id)
+      .then((res) => setCourse(res.data))
+      .catch(() => setCourse(null))
+      .finally(() => setLoading(false));
   }, [id]);
 
   useEffect(() => {
-    const fetchWeeks = async () => {
-      try {
-        const res = await scheduleApi.getWeeklySchedules(id);
-        setWeeklyOptions(res.data || []);
-      } catch {
-        setWeeklyOptions([]);
-      }
-    };
-
-    fetchWeeks();
+    scheduleApi
+      .getWeeklySchedules(id)
+      .then((res) => setWeeklyOptions(res.data || []))
+      .catch(() => setWeeklyOptions([]));
   }, [id]);
 
+  // ---------------- HANDLERS ----------------
   const handleWeekSelect = async (week) => {
     setSelectedWeek(week);
     setSelectedTime(null);
@@ -173,7 +135,6 @@ export default function CourseDetails() {
         selectedWeek.id,
         time.id,
       );
-
       setSessionOptions(res.data || []);
     } catch {
       setSessionOptions([]);
@@ -184,12 +145,16 @@ export default function CourseDetails() {
     setSelectedSession(session);
   };
 
-  const sessionModifier = selectedSession?.priceModifier ?? 0;
-  const totalPrice = course ? course.basePrice + sessionModifier : 0;
+  const handleCompleteCourse = async () => {
+    try {
+      await enrollmentApi.completeEnrollment(enrollment.id);
+      await fetchEnrollment(); // triggers UI switch
+    } catch (err) {
+      console.error("COMPLETE ERROR:", err);
+    }
+  };
 
-  if (loading) return <p>Loading...</p>;
-  if (!course) return <p>Course not found</p>;
-
+  // ---------------- HELPERS ----------------
   const formatWeekLabel = (label) => {
     if (!label) return "";
 
@@ -207,68 +172,80 @@ export default function CourseDetails() {
 
     return label
       .split("-")
-      .map((p) => p.trim())
-      .map((d) => map[d] || d)
+      .map((d) => map[d.trim()] || d)
       .join("–");
   };
 
-  console.log("RENDER courseState:", courseState);
-  console.log("RENDER enrollment:", enrollment);
+  const categoryIcons = {
+    development: devIcon,
+    design: designIcon,
+    business: businessIcon,
+    "data-science": dataIcon,
+    marketing: marketingIcon,
+  };
+
+  // ---------------- UI ----------------
+  if (loading) return <p>Loading...</p>;
+  if (!course) return <p>Course not found</p>;
 
   return (
     <div className={styles.page}>
       <div className={styles.breadcrumbs}>
-        <Link to="/">Home &gt; </Link>
-        <Link to="/browse">Browse &gt; </Link>
+        <Link to="/">Home &gt;</Link>
+        <Link to="/browse">Browse &gt;</Link>
         <span>{course.title}</span>
       </div>
 
       <h1>{course.title}</h1>
+
       <div className={styles.detailsWrapper}>
+        {/* LEFT */}
         <div className={styles.detailsLeft}>
           <img src={course.image} alt="" />
+
           <div className={styles.metaFirst}>
             <div className={styles.metaLeft}>
               <div className={styles.infoWrapper}>
                 <img src={calendar} alt="" />
                 <p>{course.durationWeeks} Weeks</p>
               </div>
+
               <div className={styles.infoWrapper}>
                 <img src={clock} alt="" />
                 <p>120 Hours</p>
               </div>
             </div>
+
             <div className={styles.metaRight}>
-              <div>
-                {" "}
-                <p className={styles.rating}>⭐ {avgRating}</p>
-              </div>
+              <p className={styles.rating}>⭐ {avgRating}</p>
+
               <div className={styles.tag}>
                 <img
                   src={categoryIcons[course.category?.icon] || devIcon}
-                  alt={course.category?.name}
+                  alt=""
                   className={styles.categoryIcon}
                 />
                 <p>{course.category?.name}</p>
               </div>
             </div>
           </div>
-          <div>
-            <div className={styles.tag}>
-              <img
-                src={course.instructor?.avatar}
-                alt=""
-                className={styles.instructor}
-              />
-              <p>{course.instructor?.name}</p>
-            </div>
+
+          <div className={styles.tag}>
+            <img
+              src={course.instructor?.avatar}
+              alt=""
+              className={styles.instructor}
+            />
+            <p>{course.instructor?.name}</p>
           </div>
+
           <div className={styles.description}>
             <h3>Course Description</h3>
             <p>{course.description}</p>
           </div>
         </div>
 
+        {/* RIGHT */}
         <div className={styles.detailsRight}>
           {courseState === "NOT_ENROLLED" && (
             <EnrollmentFlow
@@ -280,9 +257,6 @@ export default function CourseDetails() {
               selectedWeek={selectedWeek}
               selectedTime={selectedTime}
               selectedSession={selectedSession}
-              setSelectedWeek={setSelectedWeek}
-              setSelectedTime={setSelectedTime}
-              setSelectedSession={setSelectedSession}
               handleWeekSelect={handleWeekSelect}
               handleTimeSelect={handleTimeSelect}
               handleSessionSelect={handleSessionSelect}
@@ -297,7 +271,10 @@ export default function CourseDetails() {
           )}
 
           {courseState === "IN_PROGRESS" && (
-            <InProgressView enrollment={enrollment} />
+            <InProgressView
+              enrollment={enrollment}
+              onComplete={handleCompleteCourse}
+            />
           )}
 
           {courseState === "COMPLETED" && (
