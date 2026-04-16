@@ -42,6 +42,8 @@ export default function CourseDetails() {
   const [user, setUser] = useState(null);
   const [enrollment, setEnrollment] = useState(null);
 
+  const [allEnrollments, setAllEnrollments] = useState([]);
+
   // ---------------- DERIVED ----------------
   const isLoggedIn = !!user;
   const isProfileComplete = user?.profileComplete;
@@ -69,13 +71,19 @@ export default function CourseDetails() {
       const raw = res.data?.data ?? res.data ?? [];
       const list = Array.isArray(raw) ? raw : [];
 
+      console.log("ALL ENROLLMENTS:", list);
+
+      setAllEnrollments(list);
+
       const found = list.find(
         (e) =>
           Number(e.course?.id) === courseId || Number(e.courseId) === courseId,
       );
 
       setEnrollment(found || null);
-    } catch {
+    } catch (err) {
+      console.error("ENROLL FETCH ERROR:", err);
+      setAllEnrollments([]);
       setEnrollment(null);
     }
   };
@@ -188,6 +196,14 @@ export default function CourseDetails() {
   if (loading) return <p>Loading...</p>;
   if (!course) return <p>Course not found</p>;
 
+  console.log("🔥 EnrollmentFlow MOUNTED");
+  console.log("📦 EnrollmentFlow PROPS:", {
+    selectedWeek,
+    selectedTime,
+    selectedSession,
+    allEnrollments,
+  });
+
   return (
     <div className={styles.page}>
       <div className={styles.breadcrumbs}>
@@ -267,6 +283,7 @@ export default function CourseDetails() {
               enrollmentApi={enrollmentApi}
               isLoggedIn={isLoggedIn}
               isProfileComplete={isProfileComplete}
+              allEnrollments={allEnrollments}
             />
           )}
 

@@ -1,4 +1,7 @@
 import styles from "./EnrollmentFlow.module.css";
+import { useState } from "react";
+
+import ConfirmModal from "../../Modals/ConfirmModal/ConfirmModal";
 
 export default function CourseDetailsRight({
   openStep,
@@ -23,10 +26,95 @@ export default function CourseDetailsRight({
   id,
 
   enrollmentApi,
-  canEnroll,
-  isLoggedIn,
-  warning,
+  allEnrollments = [],
+  onEnroll,
 }) {
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [conflictEnrollment, setConflictEnrollment] = useState(null);
+
+  const debug = (...args) => console.log("🧠 [EnrollmentFlow]", ...args);
+
+  // -------------------------
+  // CONFLICT DETECTION
+  // -------------------------
+  const findConflict = () => {
+    debug("Checking conflict...");
+
+    if (!selectedWeek || !selectedTime) {
+      debug("Missing selection → no conflict check", {
+        selectedWeek,
+        selectedTime,
+      });
+      return null;
+    }
+
+    const conflict = allEnrollments.find((e) => {
+      const weekId = e?.schedule?.weeklySchedule?.id;
+      const timeId = e?.schedule?.timeSlot?.id;
+
+      const weekMatch = Number(weekId) === Number(selectedWeek?.id);
+
+      const timeMatch = Number(timeId) === Number(selectedTime?.id);
+
+      const isConflict = weekMatch && timeMatch;
+
+      if (isConflict) {
+        debug("⚠️ Conflict found:", e?.course?.title);
+      }
+
+      return isConflict;
+    });
+
+    debug("Conflict result:", conflict);
+    return conflict || null;
+  };
+
+  // -------------------------
+  // ENROLL HANDLER
+  // -------------------------
+  const handleEnroll = async (force = false) => {
+    try {
+      debug("Enroll clicked → force:", force);
+
+      const conflict = findConflict();
+
+      if (conflict && !force) {
+        debug("⛔ Blocking enroll → opening modal");
+
+        setConflictEnrollment(conflict);
+        setShowConflictModal(true);
+        return;
+      }
+
+      if (!selectedWeek || !selectedTime || !selectedSession) {
+        debug("❌ Missing selections:", {
+          selectedWeek,
+          selectedTime,
+          selectedSession,
+        });
+        return;
+      }
+
+      const payload = {
+        courseId: Number(id),
+        weeklyScheduleId: selectedWeek.id,
+        timeSlotId: selectedTime.id,
+        courseScheduleId: selectedSession.courseScheduleId,
+        force,
+      };
+
+      debug("📦 Sending payload:", payload);
+
+      const res = await enrollmentApi.createEnrollment(payload);
+
+      debug("✅ Enrollment success:", res?.data);
+
+      await onEnroll?.();
+    } catch (err) {
+      console.error("❌ ENROLL ERROR:", err);
+    }
+  };
+
   return (
     <div className={styles.detailsRight}>
       {/* WEEK */}
@@ -46,8 +134,6 @@ export default function CourseDetailsRight({
             }`}
           >
             <div className={styles.options}>
-              {weeklyOptions.length === 0 && <p>Loading schedules...</p>}
-
               {weeklyOptions.map((w) => (
                 <button
                   key={w.id}
@@ -70,10 +156,7 @@ export default function CourseDetailsRight({
           }`}
         >
           <div className={styles.stepTop}>
-            <h3
-              onClick={() => selectedWeek && setOpenStep("time")}
-              style={{ opacity: selectedWeek ? 1 : 0.4 }}
-            >
+            <h3 onClick={() => selectedWeek && setOpenStep("time")}>
               ② Time Slot
             </h3>
           </div>
@@ -106,10 +189,7 @@ export default function CourseDetailsRight({
           }`}
         >
           <div className={styles.stepTop}>
-            <h3
-              onClick={() => selectedTime && setOpenStep("session")}
-              style={{ opacity: selectedTime ? 1 : 0.4 }}
-            >
+            <h3 onClick={() => selectedTime && setOpenStep("session")}>
               ③ Session Type
             </h3>
           </div>
@@ -122,7 +202,6 @@ export default function CourseDetailsRight({
             <div className={styles.options}>
               {sessionOptions.map((s) => {
                 const isFull = s.availableSeats === 0;
-                const lowSeats = s.availableSeats > 0 && s.availableSeats < 5;
 
                 return (
                   <button
@@ -134,21 +213,12 @@ export default function CourseDetailsRight({
                     onClick={() => handleSessionSelect(s)}
                   >
                     <div>{s.name}</div>
-
                     <div>
                       {s.priceModifier > 0
                         ? `+$${s.priceModifier}`
                         : "Included"}
                     </div>
-
                     <div>{s.availableSeats} seats</div>
-
-                    {lowSeats && (
-                      <div className={styles.warning}>
-                        Only {s.availableSeats} left!
-                      </div>
-                    )}
-
                     {isFull && <div className={styles.full}>Fully Booked</div>}
                   </button>
                 );
@@ -162,101 +232,39 @@ export default function CourseDetailsRight({
       <div className={styles.priceBox}>
         <div className={styles.priceWrapper}>
           <div className={styles.priceTop}>
-            <div className={styles.priceContainer}>
-              <h3 className={styles.priceLeft}>Total:</h3>
-              <h3>${totalPrice}</h3>
-            </div>
-          </div>
-
-          <div className={styles.priceBottom}>
-            <div className={styles.priceContainer}>
-              <p className={styles.priceLeft}>Base Price:</p>
-              <p>+ ${course.basePrice}</p>
-            </div>
-
-            <div className={styles.priceContainer}>
-              <p className={styles.priceLeft}>Session Type:</p>
-              <p>
-                {selectedSession
-                  ? selectedSession.priceModifier > 0
-                    ? `+ $${selectedSession.priceModifier}`
-                    : "Included"
-                  : "-"}
-              </p>
-            </div>
+            <h3>Total: ${totalPrice}</h3>
           </div>
         </div>
 
         <button
           className={styles.enrollBtn}
-          onClick={async () => {
-            try {
-              console.log("ENROLL CLICKED");
-
-              if (!selectedWeek || !selectedTime || !selectedSession) {
-                console.warn("Missing selection:", {
-                  selectedWeek,
-                  selectedTime,
-                  selectedSession,
-                });
-                return;
-              }
-
-              const payload = {
-                courseId: Number(id),
-                weeklyScheduleId: selectedWeek.id,
-                timeSlotId: selectedTime.id,
-                courseScheduleId: selectedSession.courseScheduleId,
-                force: false,
-              };
-
-              console.log("📦 PAYLOAD:", payload);
-
-              const res = await enrollmentApi.createEnrollment(payload);
-
-              console.log("✅ ENROLL SUCCESS:", res.data);
-            } catch (err) {
-              console.error("❌ ENROLL ERROR:", err);
-            }
-          }}
+          onClick={() => handleEnroll(false)}
         >
           Enroll Now
         </button>
       </div>
-
-      {/* COMPLETE */}
-      {!canEnroll && (
-        <div className={styles.completeBox}>
-          <div>
-            <div className={styles.authHeading}>
-              <img src={warning} alt="" />
-              <h3>
-                {!isLoggedIn ? "Authentication Required" : "Profile Incomplete"}
-              </h3>
-            </div>
-
-            <p>
-              {!isLoggedIn
-                ? "You need to sign in before enrolling in this course."
-                : "Please complete your profile before enrolling in this course."}
-            </p>
-          </div>
-
-          <div>
-            <button
-              className={styles.authButton}
-              onClick={() => {
-                if (!isLoggedIn) {
-                  window.location.href = "/login";
-                } else {
-                  window.location.href = "/profile";
-                }
-              }}
-            >
-              {!isLoggedIn ? "Sign In" : "Complete Profile"}
-            </button>
-          </div>
-        </div>
+      {showConflictModal && conflictEnrollment && (
+        <ConfirmModal
+          title="Schedule Conflict"
+          message={
+            <>
+              You are already enrolled in{" "}
+              <b>{conflictEnrollment.course?.title}</b>
+              <br />
+              with the same schedule:
+              <br />
+              {conflictEnrollment.schedule?.weeklySchedule?.label} at{" "}
+              {conflictEnrollment.schedule?.timeSlot?.label}
+            </>
+          }
+          confirmText="Continue Anyway"
+          cancelText="Cancel"
+          onCancel={() => setShowConflictModal(false)}
+          onConfirm={() => {
+            setShowConflictModal(false);
+            handleEnroll(true);
+          }}
+        />
       )}
     </div>
   );
