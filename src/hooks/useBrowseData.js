@@ -26,9 +26,21 @@ export default function useBrowseData() {
   // TOGGLES
   // ---------------------------
   const toggleCategory = (id) => {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setSelectedCategories((prev) => {
+      const next = prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id];
+
+      const allowedTopics = topics
+        .filter((t) => next.includes(t.categoryId))
+        .map((t) => t.id);
+
+      setSelectedTopics((prev) =>
+        prev.filter((id) => allowedTopics.includes(id)),
+      );
+
+      return next;
+    });
   };
 
   const toggleTopic = (id) => {
