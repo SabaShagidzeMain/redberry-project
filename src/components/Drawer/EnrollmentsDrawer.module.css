@@ -18,12 +18,13 @@
   right: 0;
   width: 794px;
   height: 100vh;
-  background: white;
+  background: #f5f5f5;
   transform: translateX(100%);
   transition: 0.35s ease;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
+  z-index: 1000;
 }
 
 .open {
@@ -49,19 +50,142 @@
 }
 
 .body {
-  padding: 16px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .card {
+  width: 623px;
+  height: 295px;
+  border-radius: 12px;
+  background-color: #fff;
   display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 12px;
+  padding: 20px;
 }
 
-.card img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
+.cardTop {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+}
+
+.cardTop img {
+  width: 256px;
+  height: 191px;
+  border-radius: 10px;
+}
+
+.info h4 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 24px;
+  color: #0a0a0a;
+}
+
+.info p {
+  margin: 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 8px;
+}
+
+.infoFirst {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.cardBot {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 15px;
+  background: #dddbfa;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.botLeft {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.botLeft p {
+  margin: 0;
+}
+
+.cardBot p {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.progressFill {
+  height: 100%;
+  width: 100%;
+  background: #4f46e5;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.cardButton {
+  width: 117px;
+  height: 100%;
   border-radius: 8px;
+  background: none;
+  border: 1px solid #5448c8;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardButton a {
+  text-decoration: none;
+  color: #5448c8;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  transition: all 0.3s ease-in-out;
+}
+
+.cardButton a:hover {
+  background-color: #5448c8;
+  color: #fff;
+}
+
+.infoList img {
+  width: 16px;
+  height: 16px;
+}
+
+.infoListItem {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.infoListItem p {
+  font-size: 14px;
+  line-height: 26px;
+  color: #666666;
+  font-weight: 600;
 }
