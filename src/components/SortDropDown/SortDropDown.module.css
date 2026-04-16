@@ -1,0 +1,56 @@
+.sortWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.sort {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 5px 20px;
+  cursor: pointer;
+  height: 40px;
+}
+
+.sort img {
+  width: 20px;
+  height: 20px;
+}
+
+.sort span {
+  color: #4f46e5;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+
+  background: white;
+  border-radius: 8px;
+
+  width: 100%;
+  z-index: 100;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.dropdownItem {
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dropdownItem:hover {
+  background: #dddbfa;
+  color: #4f46e5;
+}

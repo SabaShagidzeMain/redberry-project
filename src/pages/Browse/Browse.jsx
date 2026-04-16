@@ -2,7 +2,8 @@ import styles from "./Browse.module.css";
 import { Link } from "react-router-dom";
 import LoadingScreen from "../../components/LoadingScreen/LoadingScreen";
 import useBrowseData from "../../hooks/useBrowseData";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import SortDropdown from "../../components/SortDropDown/SortDropDown";
 
 import devIcon from "../../assets/categories/development.png";
 import designIcon from "../../assets/categories/design.png";
@@ -12,10 +13,6 @@ import marketingIcon from "../../assets/categories/marketing.png";
 
 export default function Browse() {
   const data = useBrowseData();
-  const [showSort, setShowSort] = useState(false);
-  const dropdownRef = useRef(null);
-
-  const toggleSort = () => setShowSort((prev) => !prev);
 
   const categoryIcons = {
     development: devIcon,
@@ -37,13 +34,16 @@ export default function Browse() {
         )
       : data.topics;
 
-  const sortOptions = [
-    "Newest first",
-    "Price: Low to high",
-    "Price: High to low",
-    "Most popular",
-    "Title: A-Z",
-  ];
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowSort(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -167,31 +167,17 @@ export default function Browse() {
               </div>
 
               {/* SORT */}
-              <div className={styles.sortWrapper} ref={dropdownRef}>
-                <div className={styles.sort} onClick={toggleSort}>
-                  <p>
-                    Sort by: <span>{data.sort}</span>
-                  </p>
-                  <img src="src/assets/categories/dropdown.png" alt="" />
-                </div>
-
-                {showSort && (
-                  <div className={styles.dropdown}>
-                    {sortOptions.map((option) => (
-                      <div
-                        key={option}
-                        className={styles.dropdownItem}
-                        onClick={() => {
-                          data.setSort(option);
-                          setShowSort(false);
-                        }}
-                      >
-                        {option}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <SortDropdown
+                sort={data.sort}
+                setSort={data.setSort}
+                options={[
+                  "Newest first",
+                  "Price: Low to high",
+                  "Price: High to low",
+                  "Most popular",
+                  "Title: A-Z",
+                ]}
+              />
             </div>
 
             {/* COURSES */}
