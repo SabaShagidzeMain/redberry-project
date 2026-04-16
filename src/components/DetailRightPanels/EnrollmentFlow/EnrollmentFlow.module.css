@@ -33,7 +33,6 @@
 }
 
 .detailsRight {
-  margin-top: 65px;
   width: 530px;
   display: flex;
   flex-direction: column;

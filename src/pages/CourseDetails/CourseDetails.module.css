@@ -52,6 +52,10 @@
   height: 24px;
 }
 
+p {
+  margin: 0;
+}
+
 .infoWrapper p {
   margin: 0;
   font-size: 14px;
@@ -88,4 +92,11 @@
 .metaLeft {
   display: flex;
   gap: 12px;
+}
+
+.metaRight {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
 }

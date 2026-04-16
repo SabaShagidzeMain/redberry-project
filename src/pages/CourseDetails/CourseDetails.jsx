@@ -223,12 +223,50 @@ export default function CourseDetails() {
         <span>{course.title}</span>
       </div>
 
+      <h1>{course.title}</h1>
       <div className={styles.detailsWrapper}>
         <div className={styles.detailsLeft}>
-          <h1>{course.title}</h1>
           <img src={course.image} alt="" />
-
-          <p>⭐ {avgRating}</p>
+          <div className={styles.metaFirst}>
+            <div className={styles.metaLeft}>
+              <div className={styles.infoWrapper}>
+                <img src={calendar} alt="" />
+                <p>{course.durationWeeks} Weeks</p>
+              </div>
+              <div className={styles.infoWrapper}>
+                <img src={clock} alt="" />
+                <p>120 Hours</p>
+              </div>
+            </div>
+            <div className={styles.metaRight}>
+              <div>
+                {" "}
+                <p className={styles.rating}>⭐ {avgRating}</p>
+              </div>
+              <div className={styles.tag}>
+                <img
+                  src={categoryIcons[course.category?.icon] || devIcon}
+                  alt={course.category?.name}
+                  className={styles.categoryIcon}
+                />
+                <p>{course.category?.name}</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className={styles.tag}>
+              <img
+                src={course.instructor?.avatar}
+                alt=""
+                className={styles.instructor}
+              />
+              <p>{course.instructor?.name}</p>
+            </div>
+          </div>
+          <div className={styles.description}>
+            <h3>Course Description</h3>
+            <p>{course.description}</p>
+          </div>
         </div>
 
         <div className={styles.detailsRight}>

@@ -1,4 +1,9 @@
 import styles from "./InProgressView.module.css";
+import calendar from "../../../assets/icons/callendar.png";
+import clock from "../../../assets/icons/clock.png";
+import desktop from "../../../assets/icons/desktop.png";
+import location from "../../../assets/icons/location.png";
+import person from "../../../assets/icons/person.png";
 
 export default function InProgressView({ enrollment }) {
   if (!enrollment) {
@@ -14,26 +19,27 @@ export default function InProgressView({ enrollment }) {
   const time = schedule.timeSlot?.label || "N/A";
   const session = schedule.sessionType?.name || "N/A";
 
+  const cleanTime = time?.match(/\((.*?)\)/)?.[1] || time;
+
   return (
     <div className={styles.stateBox}>
-      <h2>Course In Progress</h2>
+      <div className={styles.enrolledHeader}>
+        <h2>Enrolled</h2>
+      </div>
 
       <div className={styles.infoBox}>
-        <p>
-          <strong>Course:</strong> {course.title || "Unknown"}
-        </p>
-
-        <p>
-          <strong>Schedule:</strong> {weekly}
-        </p>
-
-        <p>
-          <strong>Time:</strong> {time}
-        </p>
-
-        <p>
-          <strong>Session:</strong> {session}
-        </p>
+        <div className={styles.infoBoxItem}>
+          <img src={calendar} alt="" />
+          <p>{weekly}</p>
+        </div>
+        <div className={styles.infoBoxItem}>
+          <img src={clock} alt="" />
+          <p>{cleanTime}</p>
+        </div>
+        <div className={styles.infoBoxItem}>
+          <img src={course.mode === "ONLINE" ? desktop : person} alt="" />
+          <p>{session === "in_person" ? "In Person" : "Online"}</p>
+        </div>
       </div>
 
       <div className={styles.progressSection}>
@@ -48,8 +54,7 @@ export default function InProgressView({ enrollment }) {
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.primaryBtn}>Continue Learning</button>
-        <button className={styles.secondaryBtn}>View Materials</button>
+        <button className={styles.primaryBtn}>Complete Course</button>
       </div>
     </div>
   );
