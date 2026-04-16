@@ -15,7 +15,10 @@ import designIcon from "../../assets/categories/design.png";
 import businessIcon from "../../assets/categories/business.png";
 import dataIcon from "../../assets/categories/datasci.png";
 import marketingIcon from "../../assets/categories/marketing.png";
-import warning from "../../assets/icons/warning.png";
+
+import InProgressView from "../../components/DetailRightPanels/InProgressView/InProgressView";
+import CompletedView from "../../components/DetailRightPanels/CompletedView/CompletedView";
+import EnrollmentFlow from "../../components/DetailRightPanels/EnrollmentFlow/EnrollmentFlow";
 
 export default function CourseDetails() {
   const { id } = useParams();
@@ -34,19 +37,62 @@ export default function CourseDetails() {
   const [openStep, setOpenStep] = useState("week");
 
   const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
+
+  const [enrollment, setEnrollment] = useState(null);
+
+  const courseState = (() => {
+    if (!enrollment) return "NOT_ENROLLED";
+    if (enrollment.progress >= 100) return "COMPLETED";
+    if (enrollment.progress > 0) return "IN_PROGRESS";
+    return "NOT_ENROLLED";
+  })();
+
+  const fetchEnrollment = async () => {
+    try {
+      const res = await enrollmentApi.getEnrollments();
+
+      console.log("🔥 RAW RESPONSE:", res);
+
+      const raw = res.data?.data ?? res.data ?? [];
+      const list = Array.isArray(raw) ? raw : [];
+
+      const courseId = Number(id);
+
+      console.log("🔥 CURRENT COURSE ID:", courseId);
+
+      list.forEach((e, i) => {
+        console.log(`👉 ENROLLMENT[${i}]`, e);
+      });
+
+      const found = list.find((e) => {
+        return (
+          e.course?.id === courseId ||
+          e.courseId === courseId ||
+          Number(e.course?.id) === courseId ||
+          Number(e.courseId) === courseId
+        );
+      });
+
+      console.log("🎯 MATCHED ENROLLMENT:", found);
+
+      setEnrollment(found || null);
+    } catch (err) {
+      console.error("❌ ENROLLMENT ERROR:", err);
+      setEnrollment(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchEnrollment();
+  }, [id]);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await authApi.me();
-        console.log("🔥 USER:", res.data);
         setUser(res.data);
-      } catch (err) {
-        console.log("❌ NOT LOGGED IN");
+      } catch {
         setUser(null);
-      } finally {
-        setAuthLoading(false);
       }
     };
 
@@ -55,7 +101,6 @@ export default function CourseDetails() {
 
   const isLoggedIn = !!user;
   const isProfileComplete = user?.profileComplete;
-  const canEnroll = isLoggedIn && isProfileComplete;
 
   const categoryIcons = {
     development: devIcon,
@@ -65,25 +110,20 @@ export default function CourseDetails() {
     marketing: marketingIcon,
   };
 
-  const avgRating = (() => {
-    if (!course?.reviews?.length) return null;
-    const total = course.reviews.reduce((acc, r) => acc + r.rating, 0);
-    return (total / course.reviews.length).toFixed(1);
-  })();
+  const reviews = Array.isArray(course?.reviews) ? course.reviews : [];
+
+  const avgRating =
+    reviews.length > 0
+      ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
+      : null;
 
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        setLoading(true);
-
         const res = await coursesApi.getCourseById(id);
-        const data = res.data;
-
-        console.log("COURSE:", data);
-
-        setCourse(data);
-      } catch (err) {
-        console.error("COURSE ERROR:", err);
+        setCourse(res.data);
+      } catch {
+        setCourse(null);
       } finally {
         setLoading(false);
       }
@@ -96,12 +136,9 @@ export default function CourseDetails() {
     const fetchWeeks = async () => {
       try {
         const res = await scheduleApi.getWeeklySchedules(id);
-
-        console.log("WEEKLY SCHEDULES:", res.data);
-
         setWeeklyOptions(res.data || []);
-      } catch (err) {
-        console.error("WEEK ERROR:", err);
+      } catch {
+        setWeeklyOptions([]);
       }
     };
 
@@ -109,34 +146,25 @@ export default function CourseDetails() {
   }, [id]);
 
   const handleWeekSelect = async (week) => {
-    console.log("👉 WEEK:", week);
-
     setSelectedWeek(week);
     setSelectedTime(null);
     setSelectedSession(null);
     setTimeOptions([]);
     setSessionOptions([]);
-
     setOpenStep("time");
 
     try {
       const res = await scheduleApi.getTimeSlots(id, week.id);
-
-      console.log("TIME SLOTS:", res.data);
-
       setTimeOptions(res.data || []);
-    } catch (err) {
-      console.error("TIME ERROR:", err);
+    } catch {
+      setTimeOptions([]);
     }
   };
 
   const handleTimeSelect = async (time) => {
-    console.log("TIME:", time);
-
     setSelectedTime(time);
     setSelectedSession(null);
     setSessionOptions([]);
-
     setOpenStep("session");
 
     try {
@@ -146,16 +174,13 @@ export default function CourseDetails() {
         time.id,
       );
 
-      console.log("SESSIONS:", res.data);
-
       setSessionOptions(res.data || []);
-    } catch (err) {
-      console.error("SESSION ERROR:", err);
+    } catch {
+      setSessionOptions([]);
     }
   };
 
   const handleSessionSelect = (session) => {
-    console.log("👉 SESSION:", session);
     setSelectedSession(session);
   };
 
@@ -178,310 +203,67 @@ export default function CourseDetails() {
       Sunday: "Sun",
     };
 
-    // Weekend case
-    if (label.toLowerCase().includes("weekend")) {
-      return "Weekend";
-    }
+    if (label.toLowerCase().includes("weekend")) return "Weekend";
 
     return label
       .split("-")
-      .map((part) => part.trim())
-      .map((day) => map[day] || day)
+      .map((p) => p.trim())
+      .map((d) => map[d] || d)
       .join("–");
   };
+
+  console.log("RENDER courseState:", courseState);
+  console.log("RENDER enrollment:", enrollment);
 
   return (
     <div className={styles.page}>
       <div className={styles.breadcrumbs}>
-        <Link to="/" className={styles.wayHome}>
-          Home &nbsp;&gt;&nbsp;
-        </Link>
-        <Link to="/browse" className={styles.wayHome}>
-          Browse &nbsp;&gt;&nbsp;
-        </Link>
+        <Link to="/">Home &gt; </Link>
+        <Link to="/browse">Browse &gt; </Link>
         <span>{course.title}</span>
       </div>
+
       <div className={styles.detailsWrapper}>
-        {/* LEFT */}
         <div className={styles.detailsLeft}>
           <h1>{course.title}</h1>
           <img src={course.image} alt="" />
-          <div className={styles.metaFirst}>
-            <div className={styles.metaLeft}>
-              <div className={styles.infoWrapper}>
-                <img src={calendar} alt="" />
-                <p>{course.durationWeeks} Weeks</p>
-              </div>
-              <div className={styles.infoWrapper}>
-                <img src={clock} alt="" />
-                <p>120 Hours</p>
-              </div>
-            </div>
-            <div className={styles.metaRight}>
-              <div>
-                {" "}
-                <p className={styles.rating}>⭐ {avgRating}</p>
-              </div>
-              <div className={styles.tag}>
-                <img
-                  src={categoryIcons[course.category?.icon] || devIcon}
-                  alt={course.category?.name}
-                  className={styles.categoryIcon}
-                />
-                <p>{course.category?.name}</p>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div className={styles.tag}>
-              <img
-                src={course.instructor?.avatar}
-                alt=""
-                className={styles.instructor}
-              />
-              <p>{course.instructor?.name}</p>
-            </div>
-          </div>
-          <div className={styles.description}>
-            <h3>Course Description</h3>
-            <p>{course.description}</p>
-          </div>
+
+          <p>⭐ {avgRating}</p>
         </div>
 
-        {/* RIGHT */}
         <div className={styles.detailsRight}>
-          {/* WEEK */}
-          <div className={styles.stepWrapper}>
-            {/* WEEK */}
-            <div
-              className={`${styles.step} ${
-                openStep === "week" ? styles.activeStep : ""
-              }`}
-            >
-              <div className={styles.stepTop}>
-                <h3 onClick={() => setOpenStep("week")}>① Weekly Schedule</h3>
-              </div>
+          {courseState === "NOT_ENROLLED" && (
+            <EnrollmentFlow
+              id={id}
+              course={course}
+              weeklyOptions={weeklyOptions}
+              timeOptions={timeOptions}
+              sessionOptions={sessionOptions}
+              selectedWeek={selectedWeek}
+              selectedTime={selectedTime}
+              selectedSession={selectedSession}
+              setSelectedWeek={setSelectedWeek}
+              setSelectedTime={setSelectedTime}
+              setSelectedSession={setSelectedSession}
+              handleWeekSelect={handleWeekSelect}
+              handleTimeSelect={handleTimeSelect}
+              handleSessionSelect={handleSessionSelect}
+              openStep={openStep}
+              setOpenStep={setOpenStep}
+              formatWeekLabel={formatWeekLabel}
+              totalPrice={totalPrice}
+              enrollmentApi={enrollmentApi}
+              isLoggedIn={isLoggedIn}
+              isProfileComplete={isProfileComplete}
+            />
+          )}
 
-              <div
-                className={`${styles.stepBot} ${
-                  openStep === "week" ? styles.open : styles.closed
-                }`}
-              >
-                <div className={styles.options}>
-                  {weeklyOptions.length === 0 && <p>Loading schedules...</p>}
+          {courseState === "IN_PROGRESS" && (
+            <InProgressView enrollment={enrollment} />
+          )}
 
-                  {weeklyOptions.map((w) => (
-                    <button
-                      key={w.id}
-                      className={`${styles.option} ${
-                        selectedWeek?.id === w.id ? styles.active : ""
-                      }`}
-                      onClick={() => handleWeekSelect(w)}
-                    >
-                      {formatWeekLabel(w.label)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* TIME */}
-            <div
-              className={`${styles.step} ${
-                openStep === "time" ? styles.activeStep : ""
-              }`}
-            >
-              <div className={styles.stepTop}>
-                <h3
-                  onClick={() => selectedWeek && setOpenStep("time")}
-                  style={{ opacity: selectedWeek ? 1 : 0.4 }}
-                >
-                  ② Time Slot
-                </h3>
-              </div>
-
-              <div
-                className={`${styles.stepBot} ${
-                  openStep === "time" ? styles.open : styles.closed
-                }`}
-              >
-                <div className={styles.options}>
-                  {timeOptions.map((t) => (
-                    <button
-                      key={t.id}
-                      className={`${styles.option} ${
-                        selectedTime?.id === t.id ? styles.active : ""
-                      }`}
-                      onClick={() => handleTimeSelect(t)}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* SESSION */}
-            <div
-              className={`${styles.step} ${
-                openStep === "session" ? styles.activeStep : ""
-              }`}
-            >
-              <div className={styles.stepTop}>
-                <h3
-                  onClick={() => selectedTime && setOpenStep("session")}
-                  style={{ opacity: selectedTime ? 1 : 0.4 }}
-                >
-                  ③ Session Type
-                </h3>
-              </div>
-
-              <div
-                className={`${styles.stepBot} ${
-                  openStep === "session" ? styles.open : styles.closed
-                }`}
-              >
-                <div className={styles.options}>
-                  {sessionOptions.map((s) => {
-                    const isFull = s.availableSeats === 0;
-                    const lowSeats =
-                      s.availableSeats > 0 && s.availableSeats < 5;
-
-                    return (
-                      <button
-                        key={s.id}
-                        disabled={isFull}
-                        className={`${styles.option} ${
-                          selectedSession?.id === s.id ? styles.active : ""
-                        } ${isFull ? styles.disabled : ""}`}
-                        onClick={() => handleSessionSelect(s)}
-                      >
-                        <div>{s.name}</div>
-
-                        <div>
-                          {s.priceModifier > 0
-                            ? `+$${s.priceModifier}`
-                            : "Included"}
-                        </div>
-
-                        <div>{s.availableSeats} seats</div>
-
-                        {lowSeats && (
-                          <div className={styles.warning}>
-                            Only {s.availableSeats} left!
-                          </div>
-                        )}
-
-                        {isFull && (
-                          <div className={styles.full}>Fully Booked</div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* PRICE */}
-          <div className={styles.priceBox}>
-            <div className={styles.priceWrapper}>
-              <div className={styles.priceTop}>
-                <div className={styles.priceContainer}>
-                  <h3 className={styles.priceLeft}>Total:</h3>
-                  <h3>${totalPrice}</h3>
-                </div>
-              </div>
-              <div className={styles.priceBottom}>
-                <div className={styles.priceContainer}>
-                  <p className={styles.priceLeft}>Base Price:</p>
-                  <p>+ ${course.basePrice}</p>
-                </div>
-                <div className={styles.priceContainer}>
-                  <p className={styles.priceLeft}>Session Type:</p>
-                  <p>
-                    {selectedSession
-                      ? selectedSession.priceModifier > 0
-                        ? `+ $${selectedSession.priceModifier}`
-                        : "Included"
-                      : "-"}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <button
-              className={styles.enrollBtn}
-              // disabled={!selectedSession}
-              onClick={async () => {
-                try {
-                  console.log("ENROLL CLICKED");
-
-                  if (!selectedWeek || !selectedTime || !selectedSession) {
-                    console.warn("Missing selection:", {
-                      selectedWeek,
-                      selectedTime,
-                      selectedSession,
-                    });
-                    return;
-                  }
-
-                  const payload = {
-                    courseId: Number(id),
-                    weeklyScheduleId: selectedWeek.id,
-                    timeSlotId: selectedTime.id,
-                    courseScheduleId: selectedSession.courseScheduleId,
-                    force: false,
-                  };
-
-                  console.log("📦 PAYLOAD:", payload);
-
-                  const res = await enrollmentApi.createEnrollment(payload);
-
-                  console.log("✅ ENROLL SUCCESS:", res.data);
-                } catch (err) {
-                  console.error("❌ ENROLL ERROR:", err);
-                }
-              }}
-            >
-              Enroll Now
-            </button>
-          </div>
-
-          {/* COMPLETE */}
-          {!canEnroll && (
-            <div className={styles.completeBox}>
-              <div>
-                <div className={styles.authHeading}>
-                  <img src={warning} alt="" />
-                  <h3>
-                    {!isLoggedIn
-                      ? "Authentication Required"
-                      : "Profile Incomplete"}
-                  </h3>
-                </div>
-
-                <p>
-                  {!isLoggedIn
-                    ? "You need to sign in before enrolling in this course."
-                    : "Please complete your profile before enrolling in this course."}
-                </p>
-              </div>
-
-              <div>
-                <button
-                  className={styles.authButton}
-                  onClick={() => {
-                    if (!isLoggedIn) {
-                      window.location.href = "/login";
-                    } else {
-                      window.location.href = "/profile";
-                    }
-                  }}
-                >
-                  {!isLoggedIn ? "Sign In" : "Complete Profile"}
-                </button>
-              </div>
-            </div>
+          {courseState === "COMPLETED" && (
+            <CompletedView enrollment={enrollment} />
           )}
         </div>
       </div>
